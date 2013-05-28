@@ -1,0 +1,480 @@
+Model {
+  Name			  "bounce_simulink1"
+  Version		  4.1.1
+  SampleTimeColors	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowStorageClass	  off
+  ExecutionOrder	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  on
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  Created		  "Thu Sep 23 11:39:01 1999"
+  Creator		  "monteiro"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "jpk3"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Tue Feb 26 17:43:28 2002"
+  ModelVersionFormat	  "1.%<AutoIncrement:11>"
+  ConfigurationManager	  "none"
+  SimParamPage		  "Solver"
+  StartTime		  "0.0"
+  StopTime		  "20"
+  SolverMode		  "SingleTasking"
+  Solver		  "ode23"
+  RelTol		  "1e-3"
+  AbsTol		  "1e-6"
+  Refine		  "1"
+  MaxStep		  ".01"
+  MinStep		  "auto"
+  MaxNumMinSteps	  "-1"
+  InitialStep		  "auto"
+  FixedStep		  "auto"
+  MaxOrder		  5
+  OutputOption		  "RefineOutputTimes"
+  OutputTimes		  "[]"
+  LoadExternalInput	  off
+  ExternalInput		  "[]"
+  SaveTime		  off
+  TimeSaveName		  "tout"
+  SaveState		  off
+  StateSaveName		  "xout"
+  SaveOutput		  off
+  OutputSaveName	  "yout"
+  LoadInitialState	  off
+  InitialState		  "[]"
+  SaveFinalState	  off
+  FinalStateName	  "xFinal"
+  SaveFormat		  "Array"
+  LimitDataPoints	  off
+  MaxDataPoints		  "1000"
+  Decimation		  "1"
+  AlgebraicLoopMsg	  "warning"
+  MinStepSizeMsg	  "warning"
+  UnconnectedInputMsg	  "warning"
+  UnconnectedOutputMsg	  "warning"
+  UnconnectedLineMsg	  "warning"
+  InheritedTsInSrcMsg	  "warning"
+  SingleTaskRateTransMsg  "none"
+  MultiTaskRateTransMsg	  "error"
+  IntegerOverflowMsg	  "warning"
+  CheckForMatrixSingularity "none"
+  UnnecessaryDatatypeConvMsg "none"
+  Int32ToFloatConvMsg	  "warning"
+  InvalidFcnCallConnMsg	  "error"
+  SignalLabelMismatchMsg  "none"
+  LinearizationMsg	  "none"
+  VectorMatrixConversionMsg "none"
+  SfunCompatibilityCheckMsg "none"
+  BlockPriorityViolationMsg "warning"
+  ArrayBoundsChecking	  "none"
+  ConsistencyChecking	  "none"
+  ZeroCross		  on
+  Profile		  off
+  SimulationMode	  "normal"
+  RTWSystemTargetFile	  "grt.tlc"
+  RTWInlineParameters	  off
+  RTWRetainRTWFile	  off
+  RTWTemplateMakefile	  "grt_default_tmf"
+  RTWMakeCommand	  "make_rtw"
+  RTWGenerateCodeOnly	  off
+  TLCProfiler		  off
+  TLCDebug		  off
+  TLCCoverage		  off
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  ExtModeMexFile	  "ext_comm"
+  ExtModeBatchMode	  off
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "oneshot"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  off
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  OptimizeBlockIOStorage  on
+  BufferReuse		  on
+  ParameterPooling	  on
+  BlockReductionOpt	  on
+  RTWExpressionDepthLimit 5
+  BooleanDataType	  off
+  BlockDefaults {
+    Orientation		    "right"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  System {
+    Name		    "bounce_simulink1"
+    Location		    [76, 218, 875, 620]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      Display
+      Name		      "Ball Fell Through Hole"
+      Ports		      [1]
+      Position		      [675, 59, 760, 91]
+      FontSize		      10
+      Format		      "short"
+      Decimation	      "1"
+      Floating		      off
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Display
+      Name		      "Ball Hit Right Wall"
+      Ports		      [1]
+      Position		      [370, 329, 455, 361]
+      FontSize		      10
+      Format		      "short"
+      Decimation	      "1"
+      Floating		      off
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Gain
+      Name		      "Elasticity"
+      Position		      [155, 147, 200, 183]
+      Orientation	      "left"
+      NamePlacement	      "alternate"
+      Gain		      "-0.9"
+      Multiplication	      "Element-wise(K.*u)"
+      SaturateOnIntegerOverflow	on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Gravity"
+      Position		      [110, 41, 150, 69]
+      NamePlacement	      "alternate"
+      Value		      "-1"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Gravity1"
+      Position		      [105, 270, 125, 290]
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Value		      "1"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Gravity2"
+      Position		      [450, 70, 470, 90]
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Value		      "2.5"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Gravity4"
+      Position		      [450, 130, 470, 150]
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Value		      "3"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      InitialCondition
+      Name		      "IC"
+      Position		      [145, 89, 175, 121]
+      Value		      "0"
+    }
+    Block {
+      BlockType		      Logic
+      Name		      "Logical\nOperator"
+      Ports		      [3, 1]
+      Position		      [580, 119, 610, 151]
+      ShowName		      off
+      Operator		      "AND"
+      Inputs		      "3"
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Name		      "Relational\nOperator"
+      Position		      [490, 57, 520, 88]
+      ShowName		      off
+      Operator		      ">="
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Name		      "Relational\nOperator1"
+      Position		      [490, 117, 520, 148]
+      ShowName		      off
+      Operator		      "<="
+    }
+    Block {
+      BlockType		      Stop
+      Name		      "Stop Simulation"
+      Position		      [395, 275, 430, 305]
+      ShowName		      off
+    }
+    Block {
+      BlockType		      Stop
+      Name		      "Stop Simulation1"
+      Position		      [655, 120, 690, 150]
+      ShowName		      off
+    }
+    Block {
+      BlockType		      Integrator
+      Name		      "Velocity"
+      Ports		      [3, 1, 0, 0, 1]
+      Position		      [200, 43, 235, 117]
+      NamePlacement	      "alternate"
+      ExternalReset	      "falling"
+      InitialConditionSource  "external"
+      InitialCondition	      "0"
+      LimitOutput	      off
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "-inf"
+      ShowSaturationPort      off
+      ShowStatePort	      on
+      AbsoluteTolerance	      "auto"
+    }
+    Block {
+      BlockType		      Integrator
+      Name		      "XPosition"
+      Ports		      [1, 2]
+      Position		      [215, 252, 250, 303]
+      ExternalReset	      "none"
+      InitialConditionSource  "internal"
+      InitialCondition	      "0"
+      LimitOutput	      on
+      UpperSaturationLimit    "4"
+      LowerSaturationLimit    "-inf"
+      ShowSaturationPort      on
+      ShowStatePort	      off
+      AbsoluteTolerance	      "auto"
+      Port {
+	PortNumber		2
+	Name			"Hit Right Wall"
+	TestPoint		off
+	LinearAnalysisOutput	off
+	LinearAnalysisInput	off
+	RTWStorageClass		"Auto"
+      }
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "XY Graph"
+      Ports		      [2]
+      Position		      [630, 232, 655, 258]
+      SourceBlock	      "simulink3/Sinks/XY Graph"
+      SourceType	      "XY scope."
+      xmin		      "0"
+      xmax		      "5"
+      ymin		      "0"
+      ymax		      "3"
+      st		      "-1"
+    }
+    Block {
+      BlockType		      Integrator
+      Name		      "YPosition"
+      Ports		      [1, 2]
+      Position		      [275, 52, 310, 103]
+      ExternalReset	      "none"
+      InitialConditionSource  "internal"
+      InitialCondition	      "1+sqrt(2)"
+      LimitOutput	      on
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "1"
+      ShowSaturationPort      on
+      ShowStatePort	      off
+      AbsoluteTolerance	      "auto"
+    }
+    Line {
+      SrcBlock		      "Velocity"
+      SrcPort		      state
+      DstBlock		      "Elasticity"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "IC"
+      SrcPort		      1
+      DstBlock		      "Velocity"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Elasticity"
+      SrcPort		      1
+      Points		      [-25, 0; 0, -60]
+      DstBlock		      "IC"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Velocity"
+      SrcPort		      1
+      DstBlock		      "YPosition"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "YPosition"
+      SrcPort		      1
+      Points		      [25, 0; 0, 0]
+      Branch {
+	Points			[0, 60]
+	Branch {
+	  DstBlock		  "Relational\nOperator1"
+	  DstPort		  1
+	}
+	Branch {
+	  Points		  [0, 125]
+	  DstBlock		  "XY Graph"
+	  DstPort		  2
+	}
+      }
+      Branch {
+	DstBlock		"Relational\nOperator"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Gravity"
+      SrcPort		      1
+      DstBlock		      "Velocity"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Gravity1"
+      SrcPort		      1
+      DstBlock		      "XPosition"
+      DstPort		      1
+    }
+    Line {
+      Name		      "Hit Right Wall"
+      Labels		      [0, 0]
+      SrcBlock		      "XPosition"
+      SrcPort		      2
+      Points		      [0, 0; 90, 0]
+      Branch {
+	DstBlock		"Stop Simulation"
+	DstPort			1
+      }
+      Branch {
+	Points			[0, 55]
+	DstBlock		"Ball Hit Right Wall"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Gravity2"
+      SrcPort		      1
+      DstBlock		      "Relational\nOperator"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Gravity4"
+      SrcPort		      1
+      DstBlock		      "Relational\nOperator1"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Relational\nOperator"
+      SrcPort		      1
+      Points		      [20, 0; 0, 50]
+      DstBlock		      "Logical\nOperator"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Relational\nOperator1"
+      SrcPort		      1
+      DstBlock		      "Logical\nOperator"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Logical\nOperator"
+      SrcPort		      1
+      Points		      [0, 0; 10, 0]
+      Branch {
+	DstBlock		"Stop Simulation1"
+	DstPort			1
+      }
+      Branch {
+	Points			[0, -60]
+	DstBlock		"Ball Fell Through Hole"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "YPosition"
+      SrcPort		      2
+      Points		      [5, 0; 0, 100; 0, 0]
+      Branch {
+	Points			[-210, 0; 0, -110]
+	DstBlock		"Velocity"
+	DstPort			2
+      }
+      Branch {
+	Points			[245, 0]
+	DstBlock		"Logical\nOperator"
+	DstPort			3
+      }
+    }
+    Line {
+      SrcBlock		      "XPosition"
+      SrcPort		      1
+      Points		      [20, 0; 0, -25]
+      DstBlock		      "XY Graph"
+      DstPort		      1
+    }
+  }
+}

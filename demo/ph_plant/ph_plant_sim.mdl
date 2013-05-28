@@ -1,0 +1,780 @@
+Model {
+  Name			  "ph_plant_sim"
+  Version		  4.00
+  SampleTimeColors	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowStorageClass	  off
+  ExecutionOrder	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  Created		  "Wed Feb 27 21:03:37 2002"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "bsilva"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Wed Feb 27 22:25:13 2002"
+  ModelVersionFormat	  "1.%<AutoIncrement:13>"
+  ConfigurationManager	  "None"
+  SimParamPage		  "Solver"
+  StartTime		  "0.0"
+  StopTime		  "10.0"
+  SolverMode		  "Auto"
+  Solver		  "ode45"
+  RelTol		  "1e-3"
+  AbsTol		  "auto"
+  Refine		  "1"
+  MaxStep		  "auto"
+  MinStep		  "auto"
+  MaxNumMinSteps	  "-1"
+  InitialStep		  "auto"
+  FixedStep		  "auto"
+  MaxOrder		  5
+  OutputOption		  "RefineOutputTimes"
+  OutputTimes		  "[]"
+  LoadExternalInput	  off
+  ExternalInput		  "[t, u]"
+  SaveTime		  on
+  TimeSaveName		  "tout"
+  SaveState		  off
+  StateSaveName		  "xout"
+  SaveOutput		  on
+  OutputSaveName	  "yout"
+  LoadInitialState	  off
+  InitialState		  "xInitial"
+  SaveFinalState	  off
+  FinalStateName	  "xFinal"
+  SaveFormat		  "Array"
+  LimitDataPoints	  on
+  MaxDataPoints		  "1000"
+  Decimation		  "1"
+  AlgebraicLoopMsg	  "warning"
+  MinStepSizeMsg	  "warning"
+  UnconnectedInputMsg	  "warning"
+  UnconnectedOutputMsg	  "warning"
+  UnconnectedLineMsg	  "warning"
+  InheritedTsInSrcMsg	  "warning"
+  SingleTaskRateTransMsg  "none"
+  MultiTaskRateTransMsg	  "error"
+  IntegerOverflowMsg	  "warning"
+  CheckForMatrixSingularity "none"
+  UnnecessaryDatatypeConvMsg "none"
+  Int32ToFloatConvMsg	  "warning"
+  InvalidFcnCallConnMsg	  "error"
+  SignalLabelMismatchMsg  "none"
+  LinearizationMsg	  "none"
+  VectorMatrixConversionMsg "none"
+  SfunCompatibilityCheckMsg "none"
+  BlockPriorityViolationMsg "warning"
+  ArrayBoundsChecking	  "none"
+  ConsistencyChecking	  "none"
+  ZeroCross		  on
+  Profile		  off
+  SimulationMode	  "normal"
+  RTWSystemTargetFile	  "grt.tlc"
+  RTWInlineParameters	  off
+  RTWRetainRTWFile	  off
+  RTWTemplateMakefile	  "grt_default_tmf"
+  RTWMakeCommand	  "make_rtw"
+  RTWGenerateCodeOnly	  off
+  TLCProfiler		  off
+  TLCDebug		  off
+  TLCCoverage		  off
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  ExtModeMexFile	  "ext_comm"
+  ExtModeBatchMode	  off
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  OptimizeBlockIOStorage  on
+  BufferReuse		  on
+  ParameterPooling	  on
+  BlockReductionOpt	  on
+  RTWExpressionDepthLimit 5
+  BooleanDataType	  off
+  BlockDefaults {
+    Orientation		    "right"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  System {
+    Name		    "ph_plant_sim"
+    Location		    [2, 70, 1022, 720]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "automatic"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      RelationalOperator
+      Name		      "High pH"
+      Position		      [435, 300, 455, 355]
+      BackgroundColor	      "green"
+      Operator		      ">="
+    }
+    Block {
+      BlockType		      HitCross
+      Name		      "Hit \nCrossing"
+      Ports		      [1, 1]
+      Position		      [480, 15, 510, 45]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      HitCrossingOffset	      "0.5"
+      HitCrossingDirection    "either"
+      ShowOutputPort	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level"
+      Position		      [120, 75, 165, 105]
+      BackgroundColor	      "lightBlue"
+      Value		      "x0(1)"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level1"
+      Position		      [295, 79, 370, 111]
+      BackgroundColor	      "green"
+      ShowName		      off
+      Value		      "max_tank_level"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level10"
+      Position		      [360, 404, 415, 426]
+      BackgroundColor	      "green"
+      ShowName		      off
+      Value		      "normal_pH"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level2"
+      Position		      [370, 329, 415, 351]
+      BackgroundColor	      "green"
+      ShowName		      off
+      Value		      "high_pH"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level3"
+      Position		      [370, 479, 415, 501]
+      BackgroundColor	      "green"
+      ShowName		      off
+      Value		      "low_pH"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level4"
+      Position		      [595, 298, 655, 322]
+      BackgroundColor	      "lightBlue"
+      ShowName		      off
+      Value		      "reduce_pH"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level5"
+      Position		      [585, 358, 655, 382]
+      BackgroundColor	      "lightBlue"
+      ShowName		      off
+      Value		      "no_correction"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level6"
+      Position		      [620, 417, 690, 443]
+      BackgroundColor	      "lightBlue"
+      ShowName		      off
+      Value		      "increase_pH"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level7"
+      Position		      [570, 477, 650, 503]
+      BackgroundColor	      "lightBlue"
+      ShowName		      off
+      Value		      "no_correction"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level8"
+      Position		      [355, 152, 530, 178]
+      Orientation	      "left"
+      BackgroundColor	      "lightBlue"
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Value		      "correcting_pH_level_dynamics"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial level9"
+      Position		      [340, 204, 470, 226]
+      Orientation	      "left"
+      BackgroundColor	      "lightBlue"
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Value		      "normal_level_dynamics"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Initial pH"
+      Position		      [130, 370, 160, 400]
+      BackgroundColor	      "lightBlue"
+      Value		      "x0(2)"
+      VectorParams1D	      on
+    }
+    Block {
+      BlockType		      Integrator
+      Name		      "Level(m)"
+      Ports		      [2, 1]
+      Position		      [200, 31, 235, 109]
+      BackgroundColor	      "lightBlue"
+      ExternalReset	      "none"
+      InitialConditionSource  "external"
+      InitialCondition	      "x0(1)"
+      LimitOutput	      off
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "-inf"
+      ShowSaturationPort      off
+      ShowStatePort	      off
+      AbsoluteTolerance	      "auto"
+    }
+    Block {
+      BlockType		      Logic
+      Name		      "Logical\nOperator"
+      Ports		      [2, 1]
+      Position		      [595, 34, 620, 241]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Operator		      "AND"
+      Inputs		      "2"
+    }
+    Block {
+      BlockType		      Logic
+      Name		      "Logical\nOperator1"
+      Ports		      [2, 1]
+      Position		      [460, 235, 495, 270]
+      Orientation	      "up"
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Operator		      "OR"
+      Inputs		      "2"
+    }
+    Block {
+      BlockType		      Logic
+      Name		      "Logical\nOperator2"
+      Ports		      [1, 1]
+      Position		      [670, 149, 700, 181]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Operator		      "NOT"
+      Inputs		      "2"
+    }
+    Block {
+      BlockType		      Logic
+      Name		      "Logical\nOperator3"
+      Ports		      [1, 1]
+      Position		      [495, 441, 525, 459]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Operator		      "NOT"
+      Inputs		      "2"
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Name		      "Low pH"
+      Position		      [435, 450, 455, 505]
+      BackgroundColor	      "green"
+      Operator		      "<="
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Name		      "Normal pH"
+      Position		      [435, 375, 455, 430]
+      BackgroundColor	      "green"
+      Operator		      "<="
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "S-R\nFlip-Flop"
+      Ports		      [2, 2]
+      Position		      [515, 330, 545, 370]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      FontSize		      10
+      SourceBlock	      "simulink_extras/Flip Flops/S-R\nFlip-Flop"
+      SourceType	      "SRFlipFlop"
+      initial_condition	      "0"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "S-R\nFlip-Flop1"
+      Ports		      [2, 2]
+      Position		      [540, 420, 570, 460]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      FontSize		      10
+      SourceBlock	      "simulink_extras/Flip Flops/S-R\nFlip-Flop"
+      SourceType	      "SRFlipFlop"
+      initial_condition	      "0"
+    }
+    Block {
+      BlockType		      Stop
+      Name		      "Stop Simulation"
+      Position		      [690, 12, 725, 48]
+      BackgroundColor	      "yellow"
+    }
+    Block {
+      BlockType		      Switch
+      Name		      "Switch"
+      Position		      [680, 292, 705, 388]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Threshold		      "0.5"
+    }
+    Block {
+      BlockType		      Switch
+      Name		      "Switch1"
+      Position		      [720, 412, 745, 508]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Threshold		      "0.5"
+    }
+    Block {
+      BlockType		      Switch
+      Name		      "Switch2"
+      Position		      [770, 298, 790, 492]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+      Threshold		      "0.5"
+    }
+    Block {
+      BlockType		      Switch
+      Name		      "Switch3"
+      Position		      [300, 151, 325, 229]
+      Orientation	      "left"
+      BackgroundColor	      "yellow"
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Threshold		      "0.5"
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Name		      "Tank full"
+      Position		      [420, 57, 450, 108]
+      BackgroundColor	      "green"
+      Operator		      ">="
+    }
+    Block {
+      BlockType		      Terminator
+      Name		      "Terminator"
+      Position		      [555, 349, 565, 371]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+    }
+    Block {
+      BlockType		      Terminator
+      Name		      "Terminator1"
+      Position		      [580, 439, 590, 461]
+      BackgroundColor	      "yellow"
+      ShowName		      off
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "level x concentration"
+      Ports		      [2]
+      Position		      [270, 245, 300, 280]
+      BackgroundColor	      "orange"
+      SourceBlock	      "simulink3/Sinks/XY Graph"
+      SourceType	      "XY scope."
+      xmin		      "0"
+      xmax		      "1"
+      ymin		      "6.7"
+      ymax		      "7.3"
+      st		      "-1"
+    }
+    Block {
+      BlockType		      Display
+      Name		      "out_of_spec"
+      Ports		      [1]
+      Position		      [725, 128, 830, 152]
+      BackgroundColor	      "yellow"
+      NamePlacement	      "alternate"
+      Format		      "short"
+      Decimation	      "1"
+      Floating		      off
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Integrator
+      Name		      "pH"
+      Ports		      [2, 1]
+      Position		      [205, 319, 240, 406]
+      BackgroundColor	      "lightBlue"
+      ExternalReset	      "none"
+      InitialConditionSource  "external"
+      InitialCondition	      "0"
+      LimitOutput	      off
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "-inf"
+      ShowSaturationPort      off
+      ShowStatePort	      off
+      AbsoluteTolerance	      "auto"
+    }
+    Block {
+      BlockType		      Display
+      Name		      "ph_OK"
+      Ports		      [1]
+      Position		      [725, 154, 830, 176]
+      BackgroundColor	      "yellow"
+      Format		      "short"
+      Decimation	      "1"
+      Floating		      off
+      SampleTime	      "-1"
+    }
+    Line {
+      SrcBlock		      "Initial level"
+      SrcPort		      1
+      DstBlock		      "Level(m)"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Initial pH"
+      SrcPort		      1
+      DstBlock		      "pH"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Level(m)"
+      SrcPort		      1
+      Points		      [15, 0]
+      Branch {
+	DstBlock		"level x concentration"
+	DstPort			1
+      }
+      Branch {
+	DstBlock		"Tank full"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Initial level1"
+      SrcPort		      1
+      DstBlock		      "Tank full"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Tank full"
+      SrcPort		      1
+      Points		      [10, 0]
+      Branch {
+	DstBlock		"Hit \nCrossing"
+	DstPort			1
+      }
+      Branch {
+	DstBlock		"Logical\nOperator"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "pH"
+      SrcPort		      1
+      Points		      [10, 0]
+      Branch {
+	DstBlock		"level x concentration"
+	DstPort			2
+      }
+      Branch {
+	Points			[95, 0]
+	Branch {
+	  Points		  [0, -50]
+	  DstBlock		  "High pH"
+	  DstPort		  1
+	}
+	Branch {
+	  Points		  [0, 25]
+	  Branch {
+	    Points		    [0, 75]
+	    DstBlock		    "Low pH"
+	    DstPort		    1
+	  }
+	  Branch {
+	    DstBlock		    "Normal pH"
+	    DstPort		    1
+	  }
+	}
+      }
+    }
+    Line {
+      SrcBlock		      "Initial level2"
+      SrcPort		      1
+      DstBlock		      "High pH"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Initial level3"
+      SrcPort		      1
+      DstBlock		      "Low pH"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Initial level5"
+      SrcPort		      1
+      DstBlock		      "Switch"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Initial level7"
+      SrcPort		      1
+      DstBlock		      "Switch1"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "High pH"
+      SrcPort		      1
+      Points		      [10, 0]
+      Branch {
+	DstBlock		"Logical\nOperator1"
+	DstPort			1
+      }
+      Branch {
+	Points			[30, 0]
+	DstBlock		"S-R\nFlip-Flop"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Initial level4"
+      SrcPort		      1
+      DstBlock		      "Switch"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Initial level6"
+      SrcPort		      1
+      DstBlock		      "Switch1"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Low pH"
+      SrcPort		      1
+      Points		      [25, 0; 0, -50]
+      Branch {
+	DstBlock		"Logical\nOperator1"
+	DstPort			2
+      }
+      Branch {
+	DstBlock		"S-R\nFlip-Flop1"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Switch1"
+      SrcPort		      1
+      DstBlock		      "Switch2"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Switch"
+      SrcPort		      1
+      Points		      [0, -10]
+      DstBlock		      "Switch2"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Logical\nOperator1"
+      SrcPort		      1
+      Points		      [0, -40]
+      Branch {
+	DstBlock		"Logical\nOperator"
+	DstPort			2
+      }
+      Branch {
+	DstBlock		"Switch3"
+	DstPort			2
+      }
+    }
+    Line {
+      SrcBlock		      "Logical\nOperator2"
+      SrcPort		      1
+      DstBlock		      "ph_OK"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Logical\nOperator"
+      SrcPort		      1
+      Points		      [25, 0]
+      Branch {
+	DstBlock		"out_of_spec"
+	DstPort			1
+      }
+      Branch {
+	Points			[0, 25]
+	DstBlock		"Logical\nOperator2"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Initial level8"
+      SrcPort		      1
+      DstBlock		      "Switch3"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Initial level9"
+      SrcPort		      1
+      DstBlock		      "Switch3"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Switch2"
+      SrcPort		      1
+      Points		      [40, 0; 0, 130; -730, 0; 0, -185]
+      DstBlock		      "pH"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Switch3"
+      SrcPort		      1
+      Points		      [-190, 0; 0, -140]
+      DstBlock		      "Level(m)"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Initial level10"
+      SrcPort		      1
+      DstBlock		      "Normal pH"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Normal pH"
+      SrcPort		      1
+      Points		      [15, 0]
+      Branch {
+	Points			[25, 0]
+	DstBlock		"S-R\nFlip-Flop"
+	DstPort			2
+      }
+      Branch {
+	Points			[0, 45]
+	DstBlock		"Logical\nOperator3"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "S-R\nFlip-Flop"
+      SrcPort		      1
+      Points		      [25, 0]
+      Branch {
+	DstBlock		"Switch"
+	DstPort			2
+      }
+      Branch {
+	Points			[0, 55]
+	DstBlock		"Switch2"
+	DstPort			2
+      }
+    }
+    Line {
+      SrcBlock		      "Logical\nOperator3"
+      SrcPort		      1
+      DstBlock		      "S-R\nFlip-Flop1"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "S-R\nFlip-Flop1"
+      SrcPort		      1
+      Points		      [25, 0; 0, 30]
+      DstBlock		      "Switch1"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Hit \nCrossing"
+      SrcPort		      1
+      DstBlock		      "Stop Simulation"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "S-R\nFlip-Flop"
+      SrcPort		      2
+      DstBlock		      "Terminator"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "S-R\nFlip-Flop1"
+      SrcPort		      2
+      DstBlock		      "Terminator1"
+      DstPort		      1
+    }
+  }
+}

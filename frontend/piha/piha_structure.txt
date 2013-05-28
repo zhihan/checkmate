@@ -1,0 +1,172 @@
+--------------------------------
+Data structure for a PIHA object
+--------------------------------
+
+A PIHA object, HA, obtained after the conversion from a C/E system consists of 
+the following fields:
+
+   HA.Hyperplanes          : List of threshold hyperplanes in the C/E system
+   HA.NAR                  : Number of hyperplanes on analysis boundary
+   HA.InitialContinuousSet : Set of initial continuous states
+   HA.InitialDiscreteSet   : Set of initial discrete states
+   HA.Cells                : List of cells in the continuous state space 
+                             partition
+   HA.InitialCells         : List of cells which overlaps with the initial
+                             continuous set
+   HA.Locations            : List of hybrid automaton locations
+   HA.InitialLocations     : Indices to initial locations
+   HA.SCSBlocks            : List of switch continuous system blocks in the 
+                             C/E system
+   HA.PTHBlocks            : List of polyhedral threshold blocks in the C/E
+                             system
+   HA.FSMBlocks            : List of finite state machine blocks in the C/E
+                             system
+
+The data structure for each field is described below.
+
+(1) Hyperplanes
+---------------
+
+Threshold hyperplanes from all PTHBs and the analysis region AR are collected 
+in this field. The field is a cell array of hyperplane structures, each with 
+the following format
+
+   Hyperplanes{i}.pthb  : -1 if it belongs to analysis region AR, otherwise
+                          it is the index to the parent PTHB in PTHBlocks
+   Hyperplanes{i}.index : The hyperplane index within the parent PTHB
+   Hyperplanes{i}.c     : Vector and constant pair representing the hyperplane
+   Hyperplanes{i}.d     : c*x = d
+  
+(2) NAR
+-------
+
+This field is an integer indicating the number of hyperplanes on the analysis 
+region boundary. The first NAR hyperplanes in the Hyperplanes list are the 
+hyperplanes from the analysis region.
+
+(3) InitialContinuousSet
+------------------------
+
+A linearcon object with parameters CE,dE,CI, and dI representing the initial 
+continuous set
+
+   CE*x  = dE
+   CI*x <= dI
+
+(4) InitialDiscreteSet 
+----------------------
+
+A cell array of initial discrete states. Each initial discrete state (cell 
+element) is a vector of state indices for FSMBlocks in the same order as in 
+FSMBlocks list.
+
+(5) Cells
+---------
+
+A cell array of "cells" in the partition of the continuous state space. Each 
+cell is a structure of the following format
+
+   Cells{i}.boundary  : A vector of indices to hyperplanes in Hyperplanes list 
+                        that comprises the boundary of the ith cell.
+   Cells{i}.hpflags   : A vector of the same length as the Hyperplanes list.
+                        hpflags(j) is a boolean flag indicating the side of
+                        the jth hyperplane in Hyperplanes list in which the 
+                        cell lies. Specifically,
+                           hpflags(j) = 1 --> c_j*x <= d_j
+                           hpflags(j) = 0 --> c_j*x >= d_j
+                        for any x in the ith cell.
+   Cells{i}.pthflags  : A vector of the same length as the PTHBlocks list 
+			(simulink diagram). pthflags(j) is a boolean flag 
+			indicating the output value of the jth PTHB in 
+			PTHBlocks list for any x in the ith cell.
+ 			 0 --> point x generates zero  at the jth PTHB
+ 			 1 --> point x generates one  at the jth PTHB
+			-1 --> point x belongs to jth PTHB (??)
+
+   Cells{i}.neighbors : A vector of indices to the neighboring cells.
+
+(6) InitialCells
+----------------
+
+A vector of indices to the continuous state space cells in the field Cells 
+that overlaps with the initial continuous set.
+
+
+(7) Locations
+-------------
+
+A cell array of locations, each with the following format
+   LOCATIONS{i}.p           : Index to a continuous cell in the field Cells
+   LOCATIONS{i}.q           : A vector of discrete state numbers (same format 
+                              as each element of InitialDiscreteSet)
+   LOCATIONS{i}.transitions : A cell array of location indices. transitions{j}
+                              indicates the destination location(s) for the 
+                              location transition taken when the continuous 
+                              trajectory exits through the jth hyperplane of 
+                              on the boundary of the cell p. 
+
+                              transitions{j} is a structure array with each 
+                              elements containing 2 field 'type' and 'value'
+
+                              If crossing the jth hyperplanes means
+                              leaving the analysis region, then
+                              transition{j} contains a single element with 
+                              the following field values                                
+                                type: 'out_of_bound'
+                                destination: []
+
+                              If crossing the jth hyperplane may lead to
+                              a "terminal" FSM state q' (a state for
+                              which there is no transition out of any
+                              of the component states), then
+                              transition{j} contains an element with the 
+                              following field values
+                                type: 'terminal'
+                                destination: q'
+                              where q' is a row FSM state vector
+
+                              For each regular location transition, 
+                              transition{j} contains an element with the 
+                              following field values
+                                type: 'regular'
+                                destination: idx
+                              where idx is the destination location index 
+                              (a scalar)
+
+
+(8) InitialLocations
+--------------------
+
+A vector of indices to the locations in the field Locations that are the 
+initial locations.
+
+(9) SCSBlocks
+-------------
+
+A cell array of switched continuous system blocks, each with the following 
+format
+
+   SCSBlocks{i}.name        : Name of the ith SCSB
+   SCSBlocks{i}.nx          : Number of continuous variables
+   SCSBlocks{i}.nu          : Number of discrete inputs
+   SCSBlocks{i}.swfunc      : Name of the switching function m-file
+   SCSBlocks{i}.fsmbindices : A vector of indices to FSMBs in the FSMBlocks 
+                              fields in the order that feeds into the input
+                              of the block SCSBlock{i}.
+
+(10) PTHBlocks
+--------------
+
+A cell array of polyhedral threshold blocks, each with the following format
+
+   PTHBlocks{i}.name : Name of the ith PTHB. 
+
+Name of PTHBs will be used as atomic propositions for CTL verifications.
+
+(11) FSMBlocks
+--------------
+
+A cell array of finite state machine blocks, each with the following format
+   FSMBlocks{i}.name   : Name of the ith FSMB.
+   FSMBlocks{i}.states : A cell array listing the discrete states in the ith
+                         FSMB by name. 

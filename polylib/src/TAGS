@@ -1,0 +1,328 @@
+
+cddcore.c,2667
+void dd_CheckAdjacency(21,578
+void dd_Eliminate(64,1720
+void dd_SetInequalitySets(88,2435
+void dd_AValue(103,2855
+void dd_StoreRay1(120,3224
+void dd_StoreRay2(166,4533
+void dd_AddRay(210,5778
+void dd_AddArtificialRay(255,7354
+void dd_ConditionalAddEdge(285,8291
+void dd_CreateInitialEdges(408,12369
+void dd_UpdateEdges(439,13212
+void dd_FreeDDMemory0(492,14966
+void dd_FreeDDMemory(554,16614
+void dd_FreePolyhedra(560,16715
+void dd_Normalize(581,17179
+void dd_ZeroIndexSet(608,17833
+void dd_CopyBmatrix(625,18232
+void dd_CopyArow(638,18454
+void dd_CopyNormalizedArow(647,18594
+void dd_CopyAmatrix(653,18720
+void dd_CopyNormalizedAmatrix(662,18886
+void dd_PermuteCopyAmatrix(671,19072
+void dd_PermutePartialCopyAmatrix(680,19282
+void dd_InitializeArow(691,19659
+void dd_InitializeAmatrix(701,19837
+void dd_FreeAmatrix(711,20052
+void dd_FreeArow(729,20335
+void dd_InitializeBmatrix(740,20465
+void dd_FreeBmatrix(755,20765
+dd_SetFamilyPtr dd_CreateSetFamily(772,21019
+void dd_FreeSetFamily(801,21672
+dd_MatrixPtr dd_CreateMatrix(816,21945
+void dd_FreeMatrix(846,22700
+void dd_SetToIdentity(863,23035
+void dd_ColumnReduce(877,23325
+long dd_MatrixRank(909,24332
+void dd_FindBasis(962,26040
+void dd_FindInitialRays(1001,27407
+void dd_CheckEquality(1048,29087
+void dd_CreateNewRay(1065,29485
+void dd_EvaluateARay1(1112,31120
+void dd_EvaluateARay2(1155,32389
+void dd_DeleteNegativeRays(1262,35713
+void dd_FeasibilityIndices(1386,39613
+dd_boolean dd_LexSmaller(1413,40255
+dd_boolean dd_LexLarger(1434,40723
+dd_boolean dd_LexEqual(1439,40825
+void dd_AddNewHalfspace1(1458,41229
+void dd_AddNewHalfspace2(1537,44136
+void dd_SelectNextHalfspace0(1604,46125
+void dd_SelectNextHalfspace1(1624,46548
+void dd_SelectNextHalfspace2(1644,46966
+void dd_SelectNextHalfspace3(1665,47537
+void dd_SelectNextHalfspace4(1687,48128
+void dd_SelectNextHalfspace5(1718,48928
+void dd_SelectNextHalfspace6(1742,49417
+void dd_UniqueRows(1765,49916
+long dd_Partition(1813,51677
+void dd_QuickSort(1840,52085
+#define RAND_MAX 1853,52332
+void dd_RandomPermutation(1856,52364
+void dd_ComputeRowOrderVector(1876,52860
+void dd_UpdateRowOrderVector(1915,54032
+void dd_SelectPreorderedNext(1957,55252
+void dd_SelectNextHalfspace(1968,55485
+dd_boolean dd_Nonnegative(2010,56431
+dd_boolean dd_Nonpositive(2017,56592
+dd_boolean dd_Positive(2024,56747
+dd_boolean dd_Negative(2029,56818
+dd_boolean dd_EqualToZero(2034,56889
+dd_boolean dd_Nonzero(2039,56987
+dd_boolean dd_Equal(2044,57075
+dd_boolean dd_Larger(2049,57185
+dd_boolean dd_Smaller(2061,57380
+void dd_abs(2066,57463
+void dd_LinearComb(2072,57579
+void dd_InnerProduct(2084,57807
+
+cddio.c,2679
+void dd_SetInputFile(24,694
+void dd_SetWriteFileName(69,1786
+dd_NumberType dd_GetNumberType(141,4095
+void dd_ProcessCommandLine(160,4411
+dd_boolean dd_AppendMatrix2Poly(203,5573
+dd_MatrixPtr dd_MatrixCopy(222,6088
+dd_MatrixPtr dd_CopyMatrix(242,6558
+dd_MatrixPtr dd_MatrixNormalizedCopy(247,6633
+dd_MatrixPtr dd_MatrixAppend(268,7124
+dd_MatrixPtr dd_MatrixNormalizedSortedCopy(300,7894
+dd_MatrixPtr dd_MatrixUniqueCopy(338,9135
+dd_MatrixPtr dd_MatrixNormalizedSortedUniqueCopy(377,10510
+dd_MatrixPtr dd_MatrixSortedUniqueCopy(416,12033
+dd_MatrixPtr dd_AppendMatrix(464,13422
+int dd_MatrixAppendTo(469,13523
+int dd_MatrixRowRemove(505,14385
+int dd_MatrixRowRemove2(531,14943
+dd_MatrixPtr dd_MatrixSubmatrix(562,15704
+dd_MatrixPtr dd_MatrixSubmatrix2(593,16456
+dd_MatrixPtr dd_MatrixSubmatrix2L(635,17641
+int dd_MatrixRowsRemove(680,18973
+int dd_MatrixRowsRemove2(692,19193
+int dd_MatrixShiftupLinearity(704,19442
+dd_PolyhedraPtr dd_CreatePolyhedraData(720,19779
+dd_boolean dd_InitializeConeData(756,21232
+dd_ConePtr dd_ConeDataLoad(830,23746
+void dd_SetLinearity(862,24482
+dd_MatrixPtr dd_PolyFile2Matrix 881,24931
+dd_PolyhedraPtr dd_DDMatrix2Poly(974,27490
+dd_PolyhedraPtr dd_DDMatrix2Poly2(1003,28234
+void dd_MatrixIntegerFilter(1032,29013
+void dd_CopyRay(1047,29340
+void dd_WriteRay(1075,30065
+void dd_WriteArow(1092,30508
+void dd_WriteAmatrix(1100,30655
+void dd_WriteBmatrix(1124,31170
+void dd_WriteSetFamily(1142,31547
+void dd_WriteSetFamilyCompressed(1160,31955
+void dd_WriteMatrix(1184,32535
+void dd_WriteLP(1218,33393
+void dd_SnapToInteger(1238,33818
+void dd_WriteReal(1245,33923
+void dd_WriteNumber(1266,34317
+void dd_WriteIncidence(1290,34764
+void dd_WriteAdjacency(1310,35220
+void dd_ComputeAinc(1331,35645
+dd_boolean dd_InputAdjacentQ(1405,37687
+void dd_WriteInputIncidence(1448,38892
+void dd_WriteInputAdjacency(1471,39398
+void dd_WriteProgramDescription(1496,39884
+void dd_WriteTimes(1503,40105
+void dd_WriteDDTimes(1523,40851
+void dd_WriteLPTimes(1528,40972
+void dd_WriteLPStats(1533,41066
+void dd_WriteLPMode(1563,42530
+void dd_WriteRunningMode(1594,43191
+void dd_WriteCompletionStatus(1638,43946
+void dd_WritePolyFile(1648,44317
+void dd_WriteErrorMessages(1654,44422
+dd_SetFamilyPtr dd_CopyIncidence(1742,47079
+dd_SetFamilyPtr dd_CopyInputIncidence(1758,47527
+dd_SetFamilyPtr dd_CopyAdjacency(1773,47907
+dd_SetFamilyPtr dd_CopyInputAdjacency(1818,49365
+dd_MatrixPtr dd_CopyOutput(1837,49843
+dd_MatrixPtr dd_CopyInput(1901,51818
+dd_MatrixPtr dd_CopyGenerators(1918,52261
+dd_MatrixPtr dd_CopyInequalities(1930,52466
+void dd_sread_rational_value 1945,52947
+void dd_fread_rational_value 2014,54912
+
+cddlib.c,828
+dd_boolean dd_debug 44,1559
+dd_boolean dd_log 45,1604
+mytype dd_zero;47,1734
+mytype dd_one;48,1750
+mytype dd_purezero;49,1765
+mytype dd_minuszero;50,1785
+mytype dd_minusone;51,1806
+time_t dd_statStartTime;53,1827
+long dd_statBApivots;54,1879
+long dd_statCCpivots;55,1929
+long dd_statDS1pivots;56,1977
+long dd_statDS2pivots;57,2021
+long dd_statACpivots;58,2065
+long dd_statBSpivots;60,2137
+dd_LPSolverType dd_choiceLPSolverDefault;62,2202
+dd_LPSolverType dd_choiceRedcheckAlgorithm;63,2279
+dd_boolean dd_choiceLexicoPivotQ;64,2360
+void dd_DDInit(69,2538
+void dd_DDMain(84,2945
+void dd_InitialDataSetup(145,4983
+dd_boolean dd_CheckEmptiness(206,6727
+dd_boolean dd_DoubleDescription(239,7456
+dd_boolean dd_DoubleDescription2(276,8411
+dd_boolean dd_DDInputAppend(314,9446
+dd_boolean dd_DDFile2File(329,9856
+
+cddlp.c,2883
+#define dd_CDDLPVERSION 26,702
+#define dd_FALSE 28,762
+#define dd_TRUE 29,781
+typedef set_type rowset;rowset31,800
+typedef set_type colset;colset32,862
+dd_LPSolutionPtr dd_CopyLPSolution(75,3006
+dd_LPPtr dd_CreateLPData(111,4026
+dd_LPPtr dd_Matrix2LP(154,5572
+dd_LPPtr dd_Matrix2Feasibility(196,7063
+dd_LPPtr dd_Matrix2Feasibility2(223,7839
+void dd_FreeLPData(303,10867
+void dd_FreeLPSolution(321,11315
+int dd_LPReverseRow(333,11533
+int dd_LPReplaceRow(349,11842
+dd_Arow dd_LPCopyRow(365,12154
+void dd_SetNumberType(381,12428
+void dd_WriteTableau(402,12829
+void dd_WriteSignTableau(431,13556
+void dd_WriteSignTableau2(462,14399
+void dd_GetRedundancyInformation(496,15385
+void dd_SelectDualSimplexPivot(524,16232
+void dd_TableauEntry(670,21879
+void dd_SelectPivot2(686,22249
+void dd_GaussianColumnPivot(746,24064
+void dd_GaussianColumnPivot2(790,25398
+void dd_ResetTableau(817,26382
+void dd_SelectCrissCrossPivot(841,27204
+void dd_CrissCrossSolve(912,29130
+void dd_DualSimplexSolve(928,29425
+dd_LPStatusType LPSf2LPS(945,29742
+void dd_BasisStatus(963,30332
+void dd_FindLPBasis(1001,31754
+void dd_FindLPBasis2(1075,34229
+void dd_FindDualFeasibleBasis(1163,37257
+void dd_DualSimplexMinimize(1377,46008
+void dd_DualSimplexMaximize(1392,46416
+void dd_CrissCrossMinimize(1557,52609
+void dd_CrissCrossMaximize(1572,53015
+void dd_SetSolutions(1664,55966
+void dd_RandomPermutation2(1735,58329
+void dd_ComputeRowOrderVector2(1755,58817
+void dd_SelectPreorderedNext2(1797,59722
+ddf_LPObjectiveType Obj2Obj(1811,60008
+ddf_LPPtr dd_LPgmp2LPf(1823,60270
+dd_boolean dd_LPSolve(1853,61033
+dd_boolean dd_LPSolve0(1930,63671
+dd_LPPtr dd_MakeLPforInteriorFinding(1962,64402
+void dd_WriteLPResult(2030,66428
+dd_LPPtr dd_CreateLP_H_ImplicitLinearity(2134,69653
+dd_LPPtr dd_CreateLP_V_ImplicitLinearity(2184,71297
+dd_LPPtr dd_CreateLP_H_Redundancy(2238,73176
+dd_LPPtr dd_CreateLP_V_Redundancy(2283,74794
+dd_LPPtr dd_CreateLP_V_SRedundancy(2337,76720
+dd_boolean dd_Redundant(2405,79330
+dd_boolean dd_RedundantExtensive(2482,82044
+dd_rowset dd_RedundantRows(2548,84164
+dd_boolean dd_MatrixRedundancyRemove(2583,85028
+dd_boolean dd_SRedundant(2678,88025
+dd_rowset dd_SRedundantRows(2803,92902
+dd_rowset dd_RedundantRowsViaShooting(2837,93792
+dd_SetFamilyPtr dd_Matrix2Adjacency(2950,97775
+dd_SetFamilyPtr dd_Matrix2WeakAdjacency(2987,98865
+dd_boolean dd_ImplicitLinearity(3025,99984
+int dd_FreeOfImplicitLinearity(3105,103019
+dd_rowset dd_ImplicitLinearityRows(3221,106592
+dd_boolean dd_MatrixCanonicalizeLinearity(3268,107811
+dd_boolean dd_MatrixCanonicalize(3318,109284
+dd_boolean dd_ExistsRestrictedFace(3365,110549
+dd_boolean dd_ExistsRestrictedFace2(3399,111535
+dd_boolean dd_FindRelativeInterior(3437,112670
+dd_rowrange dd_RayShooting(3483,114198
+void dd_BasisStatusMaximize(3559,116651
+void dd_BasisStatusMinimize(3713,121759
+
+cddmex.c,730
+#define CDDMEX_VERSION 20,445
+mxArray * MB_set_LPsol_MatrixPtr(22,475
+dd_MatrixPtr FT_get_H_MatrixPtr(103,2385
+dd_LPPtr MB_get_LP_MatrixPtr(153,4060
+mxArray * FT_set_V_MatrixPtr(186,4916
+dd_MatrixPtr FT_get_V_MatrixPtr(273,6977
+mxArray * ZH_set_Vlist(314,7915
+mxArray * FT_set_SetFamilyPtr(364,8986
+mxArray * FT_set_Set(390,9482
+mxArray * FT_set_H_MatrixPtr(418,9878
+hull(471,11136
+v_hull_extreme(507,12242
+extreme(547,13361
+adj_extreme(583,14328
+reduce_h(615,15245
+reduce_v(646,16137
+copy_v(677,17033
+copy_h(693,17449
+solve_lp(709,17865
+solve_lp_DS(745,18727
+find_interior(783,19590
+find_interior_DS(829,20730
+file_ine(875,21868
+void implicit_linear(924,23481
+mexFunction(961,24598
+adjacency(1046,27430
+
+cddmp.c,420
+void dd_set_global_constants(23,952
+void ddd_mpq_set_si(64,2166
+void ddd_init(79,2413
+void ddd_clear(84,2458
+void ddd_set(89,2506
+void ddd_set_d(94,2556
+void ddd_set_si(99,2605
+void ddd_set_si2(104,2668
+void ddd_add(109,2759
+void ddd_sub(114,2823
+void ddd_mul(119,2887
+void ddd_div(124,2951
+void ddd_neg(129,3015
+void ddd_inv(134,3066
+int ddd_cmp(139,3118
+int ddd_sgn(146,3236
+double ddd_get_d(153,3335
+
+cddproj.c,86
+dd_MatrixPtr dd_BlockElimination(21,579
+dd_MatrixPtr dd_FourierElimination(122,3421
+
+setoper.c,630
+#define SETBITS 13,332
+#define LUTBLOCKS(LUTBLOCKS24,620
+static unsigned char set_card_lut[26,707
+unsigned long set_blocks(37,1315
+void set_initialize(45,1434
+void set_free(60,1860
+void set_emptyset(66,1961
+void set_copy(76,2120
+void set_addelem(86,2329
+void set_delelem(102,2646
+void set_int(118,2975
+void set_uni(128,3214
+void set_diff(138,3443
+void set_compl(148,3691
+int set_subset(169,4250
+int set_member(182,4494
+long set_card(203,4931
+long set_groundsize(228,5333
+void set_write(233,5388
+void set_fwrite(245,5543
+void set_fwrite_compl(257,5713
+void set_binwrite(269,5890
+void set_fbinwrite(293,6225

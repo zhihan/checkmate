@@ -1,0 +1,5 @@
+Disclaimer:
+-----------
+
+This software is distributed as is. The author is not responsible
+for any inferences made from results produced by the software. 

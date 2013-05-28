@@ -1,0 +1,567 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+  <head>
+    <meta name="generator" content="HTML Tidy, see www.w3.org">
+    <link rel="Edit-Time-Data" href=
+    "./ph_documentation_files/editdata.mso">
+    <link rel="OLE-Object-Data" href=
+    "./ph_documentation_files/oledata.mso">
+    <a NAME="System_Description"></a>
+    <title>System Description</title>
+  </head>
+
+  <body link="blue" vlink="purple">
+    <div>
+      <h1>The Concentration Control System Example</h1>
+
+      <h2>System Description</h2>
+
+      <p>The <i>CheckMate</i> model example called Concentration
+      Control System (CCS) is comprised of three tanks: Tank 1
+      stores an alkaline solution, Tank 2 an acid solution, and
+      Tank 3 receives material from both tanks to form a product.
+      CCS is used to control the concentration of a certain
+      ingredient for a batch operation. For our purpose, the
+      concentration is measured indirectly from the pH level in
+      Tank 3. The two continuous state variables of interest are
+      the level (x<sub>1</sub>) and the concentration (pH) of the
+      product (x<sub>2</sub>) in Tank 3. For this system, it has
+      to be guaranteed that the concentration in Tank 3 satisfies
+      6.8 &lt; x2 &lt; 7.2 when the batch is finished (Tank 3 is
+      full, x<sub>1</sub>=1.0 m). The initial condition is
+      x<sub>2</sub>=7.1 and x<sub>1</sub>=0. In normal operation,
+      the Tank 3 is filled with product and the controller has to
+      monitor the pH-value making sure it is within
+      [6.8,7.2]. If x<sub>2</sub> &gt;= 7.2, the controller adds
+      acid solution from Tank 2, driving the pH-value again to
+      the normal region. If x2 &lt;= 6.8, the controller adds
+      alkaline solution from Tank 1 to correct the pH-value back
+      into the desired interval. An overview of the physical
+      system that the model represents is shown below.</p>
+
+      <center>
+        <img src="ph_documentation_files/image001.jpg" alt=
+        "image001" height="362" width="737"><br>
+         <strong>Overview of CCS <i>CheckMate</i>
+        example.</strong>
+      </center>
+   <a NAME="requirements"></a>
+      <h2>System Requirements</h2>
+
+      <p>The requirements for the CCS can be stated as follows: 
+      &ldquo;for all possible initial conditions, the pH level is
+      normal at the time when the Tank 3 is full, in the end of
+      the batch&rdquo;. In other words, when Tank 3 is full
+      (x<sub>1</sub> &gt1), a sample is taken and the process
+      ends successfully if 6.8 &lt; x2 &lt; 7.2, Otherwise, the
+      process failed.   If we call <i>avoid</i> the discrete
+      state of the system when Tank 3 is full and the pH is not
+      normal, and call <i>reach</i> the discrete state when Tank
+      3 is full and pH is normal, we can state the property to be investigated as follows:
+			the proposition <i>avoid</i> should be false
+      for all possible trajectories of the CCS and the proposition <i>reach</i> is true at 
+      least once in each trajectory. <i>CheckMate</i> automatically
+      tests the system for this particular specification if the
+      user names a discrete state in the <i>CheckMate</i> model
+      "avoid".  See the user guide for
+      instructions on creating <i>CheckMate</i> models.</p>
+   <a NAME="simulink"></a>
+
+      <h2>Simulink Model</h2>
+
+      <p>In constructing a <i>CheckMate</i> model for the
+      purposes of analysis, we may first wish to implement the
+      system as a general Simulink model, or we may be given a
+      general Simulink model of a system and wish to construct a
+      <i>CheckMate</i> model.  This section describes how this
+      might be done for the CCS. </p>
+
+      <p>The first step in modeling any system is identifying the
+      important dynamics.  In the case of the CCS the important
+      dynamics can be summarized as follows:</p>
+
+      <ul>
+        <li>The behavior of the level in Tank 3 when adding only
+        product. For our purposes, the differential equation is  
+        When alkaline or acid solution is being added, the new
+        dynamics equation is given by   When Tank 3 is full, the
+        Controller closes all valves, V1, V2 and V3, and the
+        dynamics for x<sub>1</sub> is  </li>
+
+        <li>The pH in Tank 3 (variable x<sub>2</sub>) has four
+        possible behaviors: a) when adding only product  (); b)
+        when  correcting high pH (); c) when correcting low pH
+        (), and c) when the process stops  ().</li>
+
+        <li>The can model each switch in the dynamics as a
+        transition in the discrete state, where as the continuous
+        behavior describes the system evolution in each
+        state.</li>
+      </ul>
+
+      <p>The CCS can be modeled using standard MATLAB/Simulink
+      blocks, as shown below. To run it, first run the file
+      setup_ph_plant.m and then type the name of the MDL file
+      ph_plant_sim.mdl.</p>
+
+      <center>
+        <img src="ph_documentation_files/image018.jpg" alt=
+        "image018" height="362" width="737"><br>
+         <strong>Simulink implementation of CCS.</strong>
+      </center>
+
+      <p>To simplify the explanation the Simulink model was drawn
+      using four colors, blue, yellow, green and orange. The
+      model are described below:</p>
+
+      <ul type="disc">
+        <li><b>Continuous dynamics</b> &ndash; the blocks
+        responsible for the continuous dynamics were drawn in
+        blue. There are two integrators, <i>level</i> and
+        <i>pH</i>. The integrator <i>level</i> has two values as
+        inputs: correcting_pH_level_dynamics    and
+        normal_level_dynamics For the integrator <i>pH</i>, there
+        are three possible dynamics: no_correction ; reduce_pH ,
+        and increase_pH The dynamics corresponds to the situation
+        where the Tank 3 is full is the simulation stops.</li>
+
+        <li><b>Discrete-event Dynamics</b> &ndash; The blocks
+        that implement the logic in the model are drawn in
+        yellow. The flip-flops and the selectors combined decide
+        which dynamics is valid for a particular configuration of
+        values in level and pH. Also note that the decision
+        whether or not the system reaches pH normal when Tank 3
+        is full is given by the two displays positioned in the
+        model. If the pH is normal when tank is full, the display
+        <i>ph_ok</i> has value 1 and display <i>out_of_spec</i>
+        is zero. Otherwise the <i>ph_ok</i> is zero and
+        <i>out_of_spec</i> is one.</li>
+
+        <li><b>Thresholds for the CCS</b> &ndash; There are four
+        important thresholds for monitoring and controlling the
+        behavior of the CCS. Green blocks in the Simulink model
+        represent these threshold comparisons. One is for the
+        level (x<sub>1</sub>). When Tank 3 is full, the
+        comparator <i>Tank full</i> outputs 1,otherwise, it
+        outputs zero. In the same way, the three
+        comparators.</li>
+
+        <li><b>Visualization</b> &ndash; The blocks used for
+        visualize the simulation results are drawn in
+        orange.</li>
+      </ul>
+
+      <p>Below we show a typical trajectory generated by the
+      Simulink model, where level is in the X axis and pH is in
+      the Y axis. We can see that the pH oscillates until Tank 3
+      is full. For this case, the pH is normal when the batch
+      ends.</p>
+
+      <center>
+        <img src="ph_documentation_files/image031.png" alt=
+        "image018" height="500" width="500"><br>
+         <strong>Simulation of CCS Simulink model.</strong>
+      </center>
+
+      <p>In constructing the Simulink model of the system we have
+      identified several things:</p>
+
+      <ul>
+        <li>The important continuous dynamics and the equations
+        that describe them.</li>
+
+        <li>The switching behavior</li>
+
+        <li>The switching conditions,</li>
+
+        <li>The system parameters.</li>
+      </ul>
+
+      <h2>Hybrid Automaton Model</h2>
+
+      <p>The CCS can be formally modeled as a hybrid system.  A
+      hybrid automaton that models the CCS is shown below.</p>
+
+      <center>
+        <img src="ph_documentation_files/image033.png" alt=
+        "image033" height="500" width="500"><br>
+         <strong>Hybrid automaton for the pH plant
+        system.</strong>
+      </center>
+
+      <p>Note that the system dynamics only can change when there
+      are transitions between discrete states. The initial
+      discrete state is <i>Normal pH</i> and continuous initial
+      state is 0&lt; x<sub>1</sub> &lt;  0.1 and 7.05 &lt;
+      x<sub>2</sub> &lt; 7.15.   To perform the test whether or
+      not the specification is satisfied, the user can define two
+      <i>Tank full</i> states. One is Tank full when the system
+      was in normal operation and the other Tank full when the
+      system where in <i>Low pH</i> or <i>High pH.</i>   Since
+      this is a change for verification purposes, it will be
+      included only in the <i>CheckMate</i> model.  </p>
+   <a NAME="checkmate"></a>
+
+      <h2>CheckMate Model</h2>
+
+      <p>Below, the CCS example is implemented using the
+      <i>CheckMate</i>   frontend.  It uses the MATLAB/Simulink
+      GUI. There are three customized special blocks as follows:
+      Switched Continuous System Block (SCSB), drawn in blue;
+      Polyhedral Threshold Blocks (PTHB's), drawn in green, and
+      the StateFlow   Machine block (SFMB), drawn in yellow.</p>
+
+      <center>
+        <img src="ph_documentation_files/image036.jpg" alt=
+        "image036" height="362" width="737"><br>
+         <strong><i>CheckMate</i> model for the CCS.</strong>
+      </center>
+
+      <h3>The SCSB</h3>
+
+      <p>The SCSB represents the continuous dynamics of the
+      system.  It takes inputs from a Stateflow block that
+      determine what discrete state the system is in and if a
+      reset has occurred.  Double-clicking on the SCSB reveals a
+      list of alterable parameters.  For the pH plant example,
+      these parameters convey the following information:</p>
+
+      <center>
+        <img src="ph_documentation_files/image040.jpg" alt=
+        "image040" height="500" width="300"><br>
+         <strong>Information for the SCSB tank.</strong>
+      </center>
+
+      <ul>
+        <li>The system has 2 continuous-valued variables</li>
+
+        <li>The SCSB has 1 input from a Stateflow block, which in
+        this case is the state of the process (Normal pH, High
+        pH, Low pH, Tank full). </li>
+
+        <li>For simulation, the initial conditions are
+        [0;7.1]</li>
+
+        <li>The m-file that describes the continuous dynamics is
+        'ph_function.m'</li>
+
+        <li>The linear-constraint-object (a <i>CheckMate</i>
+        specific Matlab object, see below) that represents all
+        possible initial conditions for the system is call
+        PH_ICS</li>
+
+        <li>The linear-constraint-object that represents all
+        possible values of x<sub>1</sub> and x<sub>2</sub> during
+        verification is called Analysis Region, and its called
+        PH_AR.</li>
+      </ul>
+
+      <p>It is interesting to observe that the function executed
+      by the blue blocks of the Simulink model (built before) are
+      the ones being replaced by the SCSB <i>tank</i>. For
+      example, the switching between the dynamics of
+      x<sub>1</sub> was done using two values
+      <i>correcting_pH_level_dynamics</i> and  
+      <i>normal_level_dynamics</i>.   Each one of these
+      correspond to a mode selected inside SCSB.</p>
+
+      <p><i>CheckMate</i> provides the ability to define
+      parameters for certain elements in the modeling that change
+      over a range of values. For the CCS, the concentration
+      increasing can be given as a parameter. The default value
+      for simulation is given in an additional field in the SCSB
+      template. The range in which the parameter will vary is
+      given as a linear-constraint-object called PH_PAR, for the
+      CCS example. Below is the template for the case where we
+      have parameters.</p>
+
+      <center>
+        <img src="ph_documentation_files/image042.jpg" alt=
+        "image042" height="500" width="300"><br>
+         <strong>Information for the SCSB tank, including
+        parametric information.</strong>
+      </center>
+
+      <h3>The PTHB</h3>
+
+      <p>The PTHB's take inputs from the output of the SCSB,
+      which is the state of the system.  The PTHB's point to
+      linearcons that represent polyhedra that are used to build
+      guard regions.  When the state of the system enters the
+      linearcon, the output of the PTHB (a boolean) goes from
+      false to true (zero to one).  The definitions for the
+      linearcons that the PTHB's point to can be found in
+      'setup_ph.m'. For the pH plant example, there are   four
+      PTHB's used for the CCS example:   phnormal
+      (x<sub>2</sub>&lt7.0); highph (x<sub>2</sub>&gt;7.2); lowph
+      (x<sub>2</sub>&lt;6.8) and tankfull (x<sub>1</sub>&gt;1).  
+      All the green blocks in the MATLAB/Simulink diagram (Shown
+      before) are replaced by the PTHB, because their function
+      were to trigger transitions.</p>
+
+      <center>
+        <img src="ph_documentation_files/image044.jpg" alt=
+        "image044" height="100" width="100"><br>
+         <strong>PTHB block.</strong>
+      </center>
+
+      <h3>The StateFlow Block</h3>
+
+      <p>This block describes the system's discrete-state
+      switching logic.  It takes boolean inputs from the PTHB's. 
+      Each state is given a name and assigned a unique, integer
+      'q' value.  This 'q' value is output to the SCSB.  For the
+      CCS example, there are four states: normal, alkaline, acid,
+        avoid, and reach.  The system starts in normal and
+      evolves continuously until a transition to alkaline, acid
+      or reach happens. From alkaline state, the system can
+      either go back to normal or go to avoid, if the event full
+      happens. For the acid state, , the system can either go
+      back to normal or go to avoid, if the event full happens.
+      The states reach and avoid are terminal states, meaning
+      that there is no outgoing transitions from them.</p>
+
+      <center>
+        <img src="ph_documentation_files/image048.jpg" alt=
+        "image046" height="500" width="500"><br>
+         <strong>StateFlow Block.</strong>
+      </center>
+
+      <h2>Building the
+      <i>CheckMate</i> model</h2>
+
+      <p>All <i>CheckMate</i> models must contain the components
+      described in the previous section.  An SCSB must be present
+      in order to implement the system&rsquo;s continuous
+      dynamics.  The continuous dynamics must serve as input to
+      the PTHB&rsquo;s, which generate a boolean output for
+      Stateflow blocks.</p>
+
+      <p><a name="userdefinedmfiles"></a><b>User-defined
+      files</b></p>
+
+      <p><i>CheckMate</i> requires several user-defined m files
+      in order to perform analysis.  Among other things, these m
+      files specify continuous state system dynamics, system
+      specifications, the polyhedral regions used for the
+      PTHB&rsquo;s, and numerical parameters. For the CCS system,
+      the user files are as follows:</p>
+
+      <p><b>The 'setup_ph.m' File</b></p>
+
+      <p>This file contains the definitions of the linearcon
+      objects used by the   PTHB's (i.e. regions used to create
+      guards for the system) and also used for the initial
+      continuous set, and the analysis region. For example, the
+      linearcon that represents the Tank 3 full is defined
+      as:</p>
+
+      <p>tankfull =linearcon([],[], [-1 0],-1);</p>
+
+      <p>This command creates a linearcon with one inequality
+      (one half-space).  Specifically, this inequality is
+      -x<sub>2</sub>&pound;-1or x<sub>2</sub>&gt;1. </p>
+
+      <p>Also, the setup file contains the system specification. 
+      This is a computation-tree-logic (CTL) expression that the
+      routines explore and verify use to analyze the system (see
+      the documentation files for pointers to papers that
+      introduce CTL).</p>
+
+      <p><b>The 'ph_function.m' File</b></p>
+
+      <p>This file contains the description of the
+      continuous-time dynamics for the CCS example.  The function
+      returns the right-hand-side of the differential equation. 
+      The dynamics change depending on the current discrete state
+      of the system.  For example, when the system is in discrete
+      location 1 (u=1), the system evolves by way of linear
+      dynamics. The other dynamics follow the hybrid
+      automaton description. The states reach and avoid both
+      represent the state <i>Tank full</i>, for the case when the
+      pH is inside the specification limits and outside,
+      respectively. The CCS has no reset function associated. In
+      the ph_function.m file there is no reference to resets.</p>
+
+      <p><b>The 'ph_param.m'</b></p>
+
+      <p>This file contains all of the numerical parameters
+      necessary to perform verification.   See the documentation
+      for a description of these parameters.</p>
+
+      <h3>Simulation</h3>
+
+      <p>Pressing the "play" button on the Simulink window can
+      simulate the CCS.  The initial conditions specified inside
+      the SCSB will be used as initial conditions for the
+      continuous variables.  Simulating the system with the
+      default initial conditions will produce the following
+      result inside the XY plot scope.</p>
+
+      <center>
+        <img src="ph_documentation_files/image052.jpg" alt=
+        "image052" height="500" width="500"><br>
+         <strong>StateFlow Block.</strong>
+      </center>
+
+      <p><a name="explore"></a></p>
+
+      <h3>Explore</h3>
+
+      <p>The command <i>explore</i> tests whether or not the
+      system specification holds for various simulation runs.   
+      It tests the fulfillment/violation of a specification for
+      sets of single trajectories.  With the pH model open, type
+      "explore" at the command line.  A simulation will
+      automatically run with the initial conditions set to the
+      value found in the SCSB block in the model. 
+      <i>CheckMate</i> will discover that the specification (of
+      not terminating the batch outside the normal levels) holds
+      for this simulation run.  We provided the specification in
+      the setup_ph.m file. <i>CheckMate</i> automatically
+      identifies if the user named any states in the StateFlow
+      diagram by the names <i>reach</i>; or <i>avoid.</i></p>
+
+      <p>The output will look like the following:</p>
+
+      <p>&gt;&gt;explore</p>
+
+      <p>block orders: x = [tank], q = [controller], pth =
+      [highph lowph phnormal tankfull]</p>
+
+      <p>init:</p>
+
+      <p>c:\matlab6.1\checkmate3.0\demo\ph_plant\ph_plant</p>
+
+      <p>t = 0.0001, x = [0 7.1], q = 1, pth = [0 0 0 0]</p>
+
+      <p>  ---&gt; ... --&gt; terminal / specification
+      satisfied</p>
+
+      <p>&hellip;</p>
+
+      <p>&gt;&gt;</p>
+
+      <p>The output of explore tells the user what specification
+      was being test, the initial state of the system, the value
+      of the output of the PTHB's at the initial instant, and
+      that the specification was satisfied. In this case, we
+      provided the specification in the setup_ph.m file.
+      CheckMate automatically identifies if the user named any
+      states in the StateFlow diagram by the names reach; or
+      avoid. 
+
+      <p>For the CCS, the SFMB has both names, what makes the
+      program to investigate these two expressions, when
+      performing explore and verify commands. The additional
+      output for the explore command is as follows:</p>
+
+      <p>computing specification 1 of 2 in the list</p>
+
+      <p>block orders: x = [tank], q = [controller], pth =
+      [highph lowph phnormal tankfull]</p>
+
+      <p>init:</p>
+
+      <p>c:\matlab6.1\checkmate3.0\demo\ph_plant\ph_plant</p>
+
+      <p>t = 0.0001, x = [0 7.1], q = 1, pth = [0 0 0 0]</p>
+
+      <p>  ---&gt; ... --&gt; terminal</p>
+
+      <p>For initial condition x = [0 7.1]: The system never
+      enters the state "avoid"</p>
+
+      <p>  / specification satisfied</p>
+
+      <p>  computing specification 3 of 3 in the list</p>
+
+      <p>block orders: x = [tank], q = [controller], pth =
+      [highph lowph phnormal tankfull]</p>
+
+      <p>init:</p>
+
+      <p>c:\matlab6.1\checkmate3.0\demo\ph_plant\ph_plant</p>
+
+      <p>t = 0.0001, x = [0 7.1], q = 1, pth = [0 0 0 0]</p>
+
+      <p>  ---&gt; ... --&gt; terminal</p>
+
+      <p>For initial condition x = [0 7.1]: The system enters the
+      state "reach".</p>
+
+      <p>The command explore can be used also for the vertices of
+      the initial condition set. For the CCS, if the user
+      types:</p>
+
+      <p>&gt;&gt; explore -vertices</p>
+
+      <p>This explore option will take the vertices of the PH_ICS
+        linearcon and use them as initial conditions for
+      simulation.  Explore then tests if the specification holds
+      for each simulation point.  If the parametric version is
+      used, it will also check for the vertices of the linearcon
+      that composes the parametric space (PH_PAR for the CCS
+      system).</p>
+
+      <p>Finally, explore also can be used for a particular set
+      of point using the following option:</p>
+
+      <p>&gt;&gt; a=[0.3 ; 7.15];</p>
+
+      <p>&gt;&gt; explore -points a</p>
+
+      <p>This will cause the analysis to explore the trajectories
+      starting from the points x=[0.3; 7.15]</p>
+
+      <p> </p>
+
+    <h3>Verification</h3>
+
+      <p>Simulation and exploration give the user some
+      preliminary information about the behavior of the system.
+      On the other hand, if the specification has to be checked
+      for all possible trajectories, starting at some initial
+      set, a formal verification analysis is necessary. After
+      opening the  CCS model, the user can invoke the
+      verification using the following command:</p>
+
+      <p>&gt;&gt; verify</p>
+
+      <p>verify has several arguments that the user can apply to
+      change the way the verification is done, when to stop, how
+      to save information, etc. the command verify creates
+      several data structures. The most important ones are
+      GLOBAL_PIHA, GLOBAL_AUTOMATON and GLOBAL_TRANSITION. For
+      details about these structures for this particular example,
+      there is the command &ldquo;document&rdquo;. For details
+      type <i>help document</i> in the MATLAB prompt.</p>
+
+      <p>Next figure shows the reachable states for the
+      verification of the CCS example (with no parametric
+      information). The verification failed because there is one
+      case where the pH =7.2 when the Tank 3 is full. This is a
+      hard situation to simulate using MATLAB, just because
+      depending on the way the simulation model is built the
+      event <i>full</i> will come before event <i>highph</i>, and
+      the second one will not be received. This is one example
+      where the verification can tell us information that it is
+      not obvious if we just simulate the system.</p>
+
+      <center>
+        <img src="ph_documentation_files/image054.jpg" alt=
+        "image052" height="500" width="500"><br>
+         <strong>Reachable states for CCS.</strong>
+      </center>
+
+      <p>If the verification fails, the program asks the user if
+      a refinement is desired. Roughly speaking, the refinement
+      consists in splitting the state space in smaller pieces,
+      connecting the pieces where there is a possibility for a
+      discrete transition and checking the specification against
+      the new transition system.</p>
+    </div>
+  </body>
+</html>
+

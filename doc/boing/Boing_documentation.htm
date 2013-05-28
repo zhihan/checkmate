@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+
+<HTML>
+  <HEAD>
+    <LINK REL="Edit-Time-Data" HREF=
+    "./Boing_documentation_files/editdata.mso">
+
+    <TITLE>System description</TITLE>
+  </HEAD>
+
+  <BODY>
+    <DIV>
+      <H1><A NAME="thebouncingballexample">The Bouncing Ball
+      Example</A></H1>
+
+      <H1><A NAME="systemdescription"></A>System description</H1>
+
+      <P>The example CheckMate model called Boing is a model of a
+      bouncing ball. The ball moves in two dimensions (its motion
+      is in a plane). The ball bounces (i.e. the velocity is
+      reset) when it strikes the level of the ground. If the ball
+      enters a specific region of the floor, it will fall through
+      a hole. Once the ball has gone far enough to the right, it
+      will reach a wall that essentially stops the system. An
+      overview of the physical system that the model represents
+      is shown below.</P>
+
+      <CENTER>
+        <IMG SRC="./Boing_documentation_files/image002.gif"> 
+
+        <P><B>Overview of bouncing ball CheckMate
+        example.</B></P>
+      </CENTER>
+
+      <P>The Boing example is a hybrid system in which the
+      continuous dynamics are linear and three dimensional. The
+      first dimension is the horizontal position, the second
+      dimension is the vertical position, and the third dimension
+      is the vertical velocity. The purpose of the Boing model is
+      to introduce the user to Checkmate and to demonstrate the
+      capability of Checkmate to perform analysis of systems with
+      resets.</P>
+
+      <H1><A NAME="systemrequirements"></A><B>System
+      requirements</B></H1>
+
+      <P>The requirements for the Boing system can be stated as
+      follows: For all possible initial conditions, the ball
+      should not fall through the hole <I>and</I> the ball should
+      not leave the analysis region.</P>
+
+      <P>CheckMate automatically tests the system for this
+      particular specification if the user names a discrete state
+      in the Stateflow portion of the CheckMate model
+      <I>avoid</I>. See the user&#39;s guide for instructions on
+      creating CheckMate models.</P>
+
+      <H1><A NAME="simulinkmodel"></A><B>Simulink model</B></H1>
+
+      <P>In constructing a CheckMate model for the purposes of
+      analysis, we may first wish to implement the system as a
+      general Simulink model, or we may be given a general
+      Simulink model of a system and wish to construct a
+      CheckMate model. This section describes how this might be
+      done for the bouncing ball system. </P>
+
+      <P>The first step in modeling any system is identifying the
+      important dynamics. In the case of the bouncing ball the
+      important dynamics can be summarized as follows:</P>
+
+      <UL>
+        <LI>The behavior of the ball during a free fall (the
+        ballistic curve that it follows) should be
+        modeled. Newton&#39;s equations of motion, which describe
+        such behavior, should be used for this purpose.</LI>
+
+        <LI>The change in direction of the ball when it strikes
+        the ground. This behavior can be modeling relatively well
+        by reversing the polarity of the vertical velocity and
+        removing a small amount of momentum (by applying a
+        restitution coefficient) at the instant when the ball
+        strikes the floor. This behavior constitutes discrete
+        switching.</LI>
+      </UL>
+
+      <P>Note that this combination of continuous and discrete
+      dynamics is the reason that the bouncing ball system is
+      best modeled as a hybrid system. These dynamics are easily
+      implemented as a Simulink model. The following figure shows
+      how the bouncing ball system might be implemented in
+      Simulink.</P>
+
+      <CENTER>
+        <IMG SRC="./Boing_documentation_files/image004.jpg"> 
+
+        <P><B>General Simulink implementation of bouncing ball
+        system.</B></P>
+      </CENTER>
+
+      <P>Newton&#39;s equations of motion are realized with the
+      integrators. The relational operators, the logical
+      operator, and the discrete outputs of the integrator blocks
+      implement the switching. The reset is applied by way of the
+      initial condition input to the Velocity block. Note that
+      the Simulink model shown assumes that the horizontal
+      velocity (the X velocity) is constant. The result of a
+      simulation run of the above system is given below.</P>
+
+      <CENTER>
+        <IMG SRC="./Boing_documentation_files/image006.jpg"> 
+
+        <P><B>Result of simulating the bouncing ball system shown
+        above.</B></P>
+      </CENTER>
+
+      <P>In constructing the Simulink model of the system we have
+      identified several things:</P>
+
+      <UL>
+        <LI>The important continuous dynamics and the equations
+        that describe them.</LI>
+
+        <LI>The switching behavior and the switching
+        conditions.</LI>
+
+        <LI>The system parameters.</LI>
+      </UL>
+
+      <P>In a CheckMate model, the continuous dynamics are
+      represented separately from the discrete switching, and the
+      switching conditions are represented separately from the
+      switching logic. So identifying these three aspects of the
+      system is an essential step in developing a CheckMate
+      model.</P>
+
+      <P>In describing how to construct a CheckMate model of our
+      bouncing ball system, it is instructive to first think of
+      the hybrid system as a hybrid automaton. This is the
+      subject of the next section.</P>
+
+      <H1><A NAME="hybridautomatonmodel"></A><B>Hybrid automaton
+      model</B></H1>
+
+      <P>The Boing example is easily modeled as a hybrid
+      system. As such, we can express the Boing system as a
+      hybrid automaton. A hybrid automaton that models the Boing
+      system is shown below.</P>
+
+      <CENTER>
+        <IMG SRC="./Boing_documentation_files/image008.gif"> 
+
+        <P><B>Hybrid automaton that models the Boing
+        system.</B></P>
+      </CENTER>
+
+      <P>Notice that the only time there is motion is when the
+      system is in the <I>Falling</I> state.  Even when the
+      system strikes the floor, a self loop is taken which resets
+      the vertical velocity and then returns to the
+      <I>Falling</I> state. The system stops movement when it
+      enters either the <I>Right Wall</I> state or the
+      <I>Avoid</I> state. Obviously, if the system ever enters
+      the <I>Avoid</I> state, it will not satisfy the
+      specification described above.</P>
+
+      <P>In constructing a hybrid automaton that represents the
+      system dynamics, we have identified discrete locations,
+      guard conditions, switching behavior, and continuous
+      dynamics. In a CheckMate model of the system, these aspects
+      of the system are modeled using CheckMate specific Simulink
+      blocks in a Simulink model window. The next section
+      describes the CheckMate model of the bouncing ball
+      system.</P>
+
+      <H1><A NAME="checkmatemodel"></A><B>CheckMate
+      model</B></H1>
+
+      <P>Below, the Boing example implemented with the
+      Simulink/CheckMate frontend is shown. The Simulink diagram
+      of the Boing model contains, among other things, a Switched
+      Continuous System Block (SCSB), Polyhedral Threshold Blocks
+      (PTHB&#39;s), and a Stateflow block.</P>
+
+      <CENTER>
+        <IMG SRC="./Boing_documentation_files/image010.jpg">
+      </CENTER>
+
+      <H2>The SCSB</H2>
+
+      <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">
+        <TR>
+          <TD VALIGN="top">
+            <P>The SCSB represents the continuous dynamics of the
+            system. It takes inputs from a Stateflow block that
+            determine what discrete state the system is in and if
+            a reset has occurred. Double-clicking on the SCSB
+            reveals a list of alterable parameters.</P>
+          </TD>
+
+          <TD VALIGN="top"><IMG SRC=
+          "./Boing_documentation_files/image012.jpg"> </TD>
+        </TR>
+      </TABLE>
+      <IMG SRC="./Boing_documentation_files/image014.jpg"> 
+
+      <P>For the Boing example, these parameters convey the
+      following information:</P>
+
+      <UL>
+        <LI>the system has 3 continuous-valued variables</LI>
+
+        <LI>the SCSB has 1 input from a Stateflow block, which in
+        this case is the state of the ball. The system is in
+        <I>idle1</I> if the ball is falling, in <I>avoid</I> if
+        it has fallen in the hole, or in <I>end</I> if it has
+        reached the right wall.</LI>
+
+        <LI>for simulation, the initial conditions are
+        [0;1+sqrt(2);0]</LI>
+
+        <LI>the &#39;m&#39; file that describes the continuous
+        dynamics is &#39;boingfunc.m&#39;</LI>
+
+        <LI>the linear-constraint-object (a Checkmate specific
+        Matlab object, see below) that represents all possible
+        initial conditions for the system is called
+        boing_ICS</LI>
+      </UL>
+
+      <H2>The PTHB&#39;s</H2>
+
+      <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">
+        <TR>
+          <TD VALIGN="top">
+            <P>The PTHB&#39;s take inputs from the output of the
+            SCSB, which is the state of the system.  The
+            PTHB&#39;s point to linearcons that represent
+            polyhedra that are used to build guard regions. When
+            the state of the system enters the linearcon, the
+            output of the PTHB (a boolean) goes from false to
+            true (zero to one). The definitions for the
+            linearcons that the PTHB&#39;s point to can be found
+            in setup_boing.m. The PTHB shown at the right points
+            to a linearcon object that represents the right wall
+            in the Boing example. With the Boing model open, you
+            can view the linear constraints that represent the
+            right wall by typing <I>right_wall</I> at the Matlab
+            command line.</P>
+          </TD>
+
+          <TD VALIGN="top"><IMG SRC=
+          "./Boing_documentation_files/image016.jpg"> </TD>
+        </TR>
+      </TABLE>
+
+      <H2>The Stateflow Block</H2>
+
+      <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">
+        <TR>
+          <TD VALIGN="top">
+            <P>This block describes the system&#39;s
+            discrete-state switching logic. It takes boolean
+            inputs from the PTHB&#39;s. Each state is given a
+            name and assigned a unique, integer <I>q</I>
+            value. This <I>q</I> value is output to the SCSB. For
+            the Boing example, there are three states: idle1,
+            avoid, and end. The system evolves continuously when
+            in the idle1 state, it fails if it ever enters the
+            avoid state, and it ends successfully if it enters
+            the end state.</P>
+          </TD>
+
+          <TD VALIGN="top"><IMG SRC=
+          "./Boing_documentation_files/image018.jpg"> </TD>
+        </TR>
+      </TABLE>
+      <IMG SRC="./Boing_documentation_files/image020.jpg"> 
+
+      <P><B>Stateflow machine for Boing example.</B></P>
+
+      <H1><A NAME="userdefinedmfiles"></A><B>User-defined
+      files</B></H1>
+
+      <P>CheckMate requires several user-defined m files in order
+      to perform analysis. Among other things, these m files
+      specify continuous state system dynamics, system
+      specifications, the polyhedral regions used for the
+      PTHB&#39;s, and numerical parameters.</P>
+
+      <P><B>The &#39;setup_boing.m&#39; File</B></P>
+
+      <P>This file contains the definitions of the linearcons
+      that the PTHB&#39;s point to (i.e. regions used to create
+      guards for the system) and linearcons used for the initial
+      continuous set as well as the analysis region (described
+      above). For example, the linearcon that represents the
+      floor is defined as:</P>
+
+      <P>floor=linearcon([],[], [0 1 0],1);</P>
+
+      <P>This command creates a linearcon with one inequality
+      (one half-space). Specifically, this inequality is
+      x2&lt;=1. Since this particular linearcon represents the
+      floor, this means that the floor is 1 in the x2 dimension
+      (the vertical position). </P>
+
+      <P>The hole linearcon is defined by:</P>
+
+      <P>hole=linearcon([],[], [1 0 0;-1 0 0],[3;-2.5]);</P>
+
+      <P>This is a linearcon that is not closed (it is not a
+      polyhedron). The region that it represents is
+      2.5&lt;x1&lt;3 . When the system enters both this region
+      and hits the floor, the ball falls through the hole and the
+      system fails. As is, the system will not fall through the
+      hole. </P>
+
+      <P>Also, the setup file contains the system
+      specification. This is a computation-tree-logic (CTL)
+      expression that the explore and verify routines analyze the
+      system against (see the documentation files for pointers to
+      papers that introduce CTL).</P>
+
+      <P><B>The &#39;boingfunc.m&#39; File</B></P>
+
+      <P>This file contains the description of the
+      continuous-time dynamics for the Boing example.  The
+      function basically returns the right-hand-side of the
+      differential equation. The dynamics change depending on the
+      discrete state that the system is in. For example,
+      according to the boingfunc.m file, when the system is in
+      discrete location 1 (u=1), the system evolves by way of
+      linear dynamics:</P>
+
+      <P>dx/dt = Ax + b</P>
+
+      <P>where in this case, A=[0 0 0;0 0 1;0 0 0], and b=[1 0
+      -1]&#39;.</P>
+
+      <P>When the system is in any other discrete location (when
+      u= 2 or 3), the system has no dynamics (it stops
+      moving). This is accomplished by simply setting A and b to
+      zero.</P>
+
+      <P>Also, note the reset function in boingfunc.m for
+      location 1:</P>
+
+      <P>reset=[1; 1; -0.9].*x;</P>
+
+      <P>This means that, if a reset occurs, the state variables
+      x1 and x2 should not change, but the value of x3 (the
+      vertical velocity) should be reset to -.9*x3 where x3 is
+      the value of x3 immediately before the discrete location
+      transition was taken.</P>
+
+      <P><B>The &#39;boing_param.m&#39;</B></P>
+
+      <P>This file contains all of the numerical parameters
+      necessary to perform the verification of the Boing
+      system. See the documentation for a description of these
+      parameters.</P>
+
+      <H1><A NAME="buildingthecheckmatemodel"></A>Building the
+      CheckMate model</H1>
+
+      <P>All CheckMate models must contain the components
+      described in the previous section. An SCSB must be present
+      in order to implement the system&#39;s continuous
+      dynamics. The continuous dynamics must serve as input to
+      the PTHB&#39;s, which generate a boolean output for
+      Stateflow blocks.</P>
+
+      <H1><A NAME="simulation"></A><B>Simulation</B></H1>
+
+      <P>The Boing system can be simulated by pressing the play
+      button on the Simulink window. The initial conditions
+      specified inside the SCSB will be used as initial
+      conditions for the continuous variables.  Simulating the
+      system with the default initial conditions will produce the
+      following result inside the XY plot scope.</P>
+
+      <CENTER>
+        <IMG SRC="./Boing_documentation_files/image022.jpg"> 
+
+        <P><B>Result of simulating the Boing model.</B></P>
+      </CENTER>
+
+      <P>The user can gain valuable insight into the system
+      dynamics by simulating the system for various initial
+      conditions.</P>
+
+      <H1><A NAME="explore"></A><B>Explore</B></H1>
+
+      <P>Exploration tests if the system specification holds for
+      various simulation runs. It tests the fulfillment/violation
+      of a specification for sets of single trajectories. With
+      the Boing model open, type <I>explore</I> at the command
+      line. A simulation will automatically run with the initial
+      conditions set to the value found in the SCSB block in the
+      model. Checkmate will discover that the specification (of
+      not falling in the hole and not leaving the analysis
+      region) holds for this simulation run. The output will look
+      like the following:</P>
+
+      <H1><B>.<BR>
+       .<BR>
+       .<BR>
+      </B></H1>
+      For initial condition x = [0 2.41421356237309 0]: The
+      system never enters the state &quot;avoid&quot;<BR>
+       / specification satisfied<BR>
+       &gt;&gt;<BR>
+      <BR>
+       
+
+      <P>This tells the user the initial state of the system, the
+      value of the output of the PTHB&#39;s at the initial
+      instant, and that the specification was satisfied.</P>
+
+      <P>Instead of one simulation instance, explore can
+      investigate simulation runs for several initial condition
+      points. At the command line, type the following:</P>
+
+      <P>explore -vertices</P>
+
+      <P>This explore option will take the vertices of the
+      boing_ICS linearcon and use them as initial conditions for
+      simulation. Explore then tests if the specification holds
+      for each simulation point. </P>
+
+      <P>Also, the user can specify a set of initial condition
+      points. At the command line type:</P>
+
+      <P>&gt;&gt; a=[0 0 ; 1+sqrt(2) 2 ; 0 0];</P>
+
+      <P>&gt;&gt; explore -points a</P>
+
+      <P>This will cause the analysis to explore the trajectories
+      starting from the points x=[0 1+sqrt(2) 0] and x=[0 2
+      0].</P>
+
+      <H1><A NAME="verification"></A><B>Verification</B></H1>
+
+      <P>Simulation and exploration give the user a sense of how
+      the system is behaving and if a specification holds for a
+      finite set of simulation runs. Verification, on the other
+      hand, attempts to say something much stronger about the
+      behavior of a system. Once a system is verified for a given
+      specification, the following statement can be made:
+      &quot;the system will never violate the specification for
+      the set of initial conditions given.&quot; Documentation on
+      Checkmate&#39;s verification procedure can be found in the
+      user&#39;s guide.</P>
+
+      <H1>CheckMate model with conditions rather than events</H1>
+
+      <P>CheckMate model can also use conditions in the Stateflow
+      part of the model. See  boing_condition.mdl for an
+      alternative CheckMate model that uses conditions rather
+      than events. Due to the restrictive semantics of Statflow,
+      a finite state machine should either use exclusively
+      events, or exclusively conditions. In a mixed FSM the
+      conditions will only be evaluated when an event triggers
+      the FSM.</P>
+      <IMG ALT="image024.jpg (42K)" SRC=
+      "Boing_documentation_files/image024.jpg" HEIGHT="550"
+      WIDTH="623"> 
+
+      <P>Though the Simuling/Stateflow part of the model differs
+      from the model with events, we can use the same files to
+      define the parameters and the dynamics.</P>
+    </DIV>
+  </BODY>
+</HTML>
+

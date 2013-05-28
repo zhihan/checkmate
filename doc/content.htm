@@ -1,0 +1,162 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="sfad">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>main</title>
+   <base target="_top">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#CC33CC" vlink="#CC6600" alink="#FF0000">
+&nbsp;
+<table BORDER=0 CELLSPACING=0 CELLPADDING=5 WIDTH="650" >
+  <tr> 
+    <td WIDTH="100%"><a NAME="top"></a><img src="banner.jpg" width="646" height="164"></td>
+  </tr>
+  <tr> 
+    <td height="400"> 
+      <hr WIDTH="650">
+      <a NAME="overview"></a> 
+      <table BORDER=0 CELLSPACING=0 CELLPADDING=10 >
+        <tr VALIGN=TOP> 
+          <td BGCOLOR="#FFFFFF" height="399"> 
+            <div align="left"><b><font color="#000000"><font size="+4" color="#0066FF">O</font><font size="+2" 
+						color="#0066FF">VERVIEW</font></font></b><font color="#000000"><BR>
+						<i>CheckMate</i> 
+              is a MATLAB-based tool for modeling, simulating and investigating properties of <i>hybrid dynamic systems</i>.
+              Hybrid systems are modeled as a Simulink block diagram. Parameters and 
+              specifications are entered using both the Simulink GUI and user-defined m-files. CheckMate commands are entered in the 
+              MATLAB command window. The current version of CheckMate has been tested on 
+			  MATLAB release R2007a and R2007b. &nbsp; <BR><BR>
+            </div>
+            <table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="50%" BGCOLOR="#000000" >
+              <tr> 
+                <td bgcolor="#CCCCCC"> 
+                  <p><b><font face="Arial,Helvetica"><font color="#FF0000">System 
+                    Requirements:</font></font></b> </p>
+                  <ul>
+                    <li><font color="#000000">MATLAB</font></li>
+                    <li><font color="#000000">Simulink</font></li>
+                    <li><font color="#000000">Stateflow</font></li>
+                    <li><font color="#000000">Optimization Toolbox</font></li>
+                    <li><font color="#000000"><font face="Wingdings"><font face="Times New Roman, Times, serif"> 
+                      Control System Toolbox</font></font></font></li>
+                  </ul>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <hr WIDTH="650">
+      <p><b><font color="#000000"><font size="+4" color="#0066FF" face="Times New Roman, Times, serif"><a name="getstarted"></a>G</font></font></b><font color="#000000"><font size="+3" color="#0066FF" face="Times New Roman, Times, serif">ETTING</font></font><b><font color="#000000"><font size="+4" color="#0066FF" face="Times New Roman, Times, serif"> 
+        S</font></font></b><font color="#000000"><font size="+3" color="#0066FF" face="Times New Roman, Times, serif">TARTED</font></font></p>
+      <table border=0 cellspacing=0 cellpadding=10 >
+        <tr valign=TOP> 
+          <td width="100%"> 
+            <p><font color="#000000">The links below provide information about how to use and understand CheckMate.  
+						The <i>User's Guide</i> describes how to model and analyze systems in 
+	    CheckMate. <i> CheckMate Verification: Theory and Implementation </i> provides an introduction to the theory behind 
+			CheckMate's verification tool. Help for any CheckMate commands
+	    can be displayed by typing <CODE>"help &lt;checkmate_command_name&gt;" </CODE> at the MATLAB command prompt.
+		<i>CheckMate Library Reference</i> is a reference guide to use the CheckMate routines in MATLAB and
+		debug information about CheckMate.
+	    </font> 
+          </td>
+        </tr>
+        <tr valign=TOP> 
+          <td width="410"> 
+            <ul>
+              <li><p><font color="#000000"><a href="usersguide/index.htm" target="_parent"> 
+                CheckMate User's Guide</a></font></p></li>
+              <li><p><font color="#000000"><a href="verify/verify.htm" target="_parent"> 
+                CheckMate Verification: Theory and Implementation</a></font></p></li>
+             <li><p><font color="#000000"><a href="library/index.htm" target="_parent"> 
+                CheckMate Library Reference</a></font></p></li>
+              </ul>
+          </td>
+        </tr>
+      </table>
+      <hr>
+      <p></p>
+</td>
+  </tr>
+  <tr> 
+    <td height="429"><a NAME="background"></a> 
+      <table BORDER=0 CELLSPACING=0 CELLPADDING=10 WIDTH="100%" >
+        <tr VALIGN=TOP> 
+          <td VALIGN=TOP> 
+            <p><b><font color="#000000"><font size="+4" color="#0066CC">S</font><font size="+2" color="#0066CC">UGGESTED 
+              </font><font size="+4" color="#0066CC">B</font><font size="+2" color="#0066CC">ACKGROUND 
+              </font><font size="+4" color="#0066CC">R</font><font size="+2" color="#0066CC">EADING</font></font></b></p>
+            <p>Despite our effort to make things intuitive, CheckMate users need to be 
+						  familiar with MATLAB and SIMULINK and some basic theory related to hybrid systems, dynamic systems and 
+							polyhedral compuations. To get the most out of CheckMate, the user should become
+              familiar with the following topics: </p>
+            <ul>
+              <li> MATLAB object oriented programming</li>
+              <li> Standard MATLAB objects, especially <i>cell arrays</i> and 
+                <i>structures</i></li>
+              <li> Model checking and computation tree logic (CTL)</li>
+							<li> Linear algebra </li>
+              <li> Computation with polyhedra, especially the operation <i>convex hull</i></li>
+              <li> Optimization, especially <i>linear programming</i></li>
+              <li> Hybrid system theory</li>
+              <li> Automata theory</li>
+            </ul>
+            <b><i><font color="#000000"></font></i></b></td>
+        </tr>
+      </table>
+      <p> 
+      <hr>
+      <p><b><font color="#0066CC" size="+4"><a name="examples"></a>E<font size="+3">XAMPLES</font></font></b></p>
+      <p>There are several examples in the \demo\ directory. To run an example, change to the directory for the 
+			demo system (a subdirectory in \demo\) and run the .mdl file in the directory. 
+        Click on the links below to view the documentation for these models.</p>
+      <ul><li><p><a href="boing/Boing_doc_main.htm" target="_parent">Bouncing Ball</a></p></li>
+      <li><p><a href="ph/ph_main.htm" target="_parent">Concentration Plant</a></p></li>
+      <li><p><a href="etc5d/ETC5.htm" target="_parent">Electronic throttle control (5th-order model)</a></p></li>
+			<li><p><a href="etc_reg/etc_reg.htm" target="_parent">Electronic throttle regulator (constant reference signal)</a></p></li>
+			</ul>
+<hr WIDTH="650">
+    </td>
+  </tr>
+  <tr> 
+    <td height="264"><a NAME="online"></a> 
+      <table BORDER=0 CELLSPACING=0 CELLPADDING=10 WIDTH="100%" >
+        <tr VALIGN=TOP> 
+          <td height="148"> 
+            <p><b><font color="#000000"><font size="+4" color="#0066CC">O</font></font></b><font color="#000000"><font size="+3" color="#0066CC">NLINE</font></font><b><font color="#000000"><font size="+4" color="#0066CC"> 
+              R</font></font></b><font color="#000000"><font size="+3" color="#0066CC">ESOURCE</font></font></p>
+            <p>For new version releases, bugs reporting, etc, please refer to:</p>
+            <p><a href="http://www.ece.cmu.edu/%7Ewebk/checkmate">CheckMate Official 
+              Site</a></p>
+            <p>&nbsp;</p>
+            </td>
+        </tr>
+      </table>
+      <hr WIDTH="650">
+    </td>
+  </tr>
+  <center>
+  </center>
+  <tr> 
+    <td> <a NAME="thanks"></a> 
+      <table BORDER=0 CELLSPACING=0 CELLPADDING=10 WIDTH="100%" >
+        <tr VALIGN=TOP> 
+          <td><b><font size="+4" color="#0066CC">A</font><font size="+2" color="#0066CC">CKNOWLEDGMENT</font></b></td>
+          <td>The development of CheckMate was made possible in part by Ford and in part by the DARPA EDCS and MoBIES programs.</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr> 
+    <td height="11">&nbsp;</td>
+  </tr>
+</table>
+<br>
+&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

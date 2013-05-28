@@ -1,0 +1,614 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD html 4.0 transitional//EN">
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1">
+    <meta name="Author" content="Keith Richeson">
+    <meta name="GENERATOR" content=
+    "Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+
+    <title>Using the Verification Tool</title>
+  </head>
+
+  <body>
+    <a name="top"></a><b><font size="+2">Using the CheckMate
+    Verification Tool</font></b> 
+
+
+    <p><a name="frontend"></a><b><font size="+2">Modeling Front
+    End</font></b></p>
+
+    <p><b><font size="+1">Open the Model</font></b><br>
+     To begin entering a model from scratch, type
+    <b><tt>simulink</tt></b> in the Matlab command window.This
+    will open the Simulink Library Browser containing the special
+    CheckMate blocks along with some standard Matlab blocks. It
+    is best to use only the blocks in this category for modeling as
+    CheckMate does not support any other Simulink blocks.</p>
+    <center>
+      <p> </p>
+
+      <p><img src="simulink.jpg"></p>
+    </center>
+
+    <p><br>
+    <br>
+    <br>
+    </p>
+
+    <p><b><font size="+1">Layout and connect
+    blocks</font></b><br>
+    Descriptions of the CheckMate customized blocks are given
+    below.  Use these special blocks along with the standard
+    Matlab blocks to enter the system model.</p>
+
+    <blockquote>
+      <b>Switched Continuous System Block (SCSB)</b><br>
+       Use SCSBs to enter sets of switched dynamic equations.
+      Each block takes a single discrete input <i>u</i> and
+      outputs the continuous state vector <i>x</i> according to
+      the dynamics selected by <i>u</i>. The switched dynamics
+      should be entered as a MATLAB function. The function can 
+	  be implemented either as an M-file or as a mex file. 
+	  See the section 
+			labeled <i>Entering Parameters</i> for a description of how the
+			user-defined switched dynamics m-files are created.  The name of this
+      switching function can then be entered as a parameter in
+      the corresponding SCSB.  <br>
+	  
+	  <strong>The option of using parameter constraints is currently disabled.</strong> <br>
+
+      <center>
+        <p><img src="imageKMA.JPG" border="0" height="211" width=
+        "253">    <img src="imageKG4.JPG"></p>
+      </center>
+
+      <p><br>
+      <br>
+      <br>
+      </p>
+
+      <p><b>Polyhedral Threshold Block (PTHB)</b><br>
+	  CheckMate uses polyhedra to define sets in continuous state space. 
+	  PTHBs can be used to construct conditions using polyhedra, which
+	  are then used as switching surfaces in the state space. A PTHB block 
+	  must be associated with a 'linearcon' object in the base workspace.
+	  
+	  See the
+      <i>entering parameters</i> section for a description of how
+      to use 'linearcon' objects to define PTHB regions.
+      The PTHB takes as input the continuous state vector
+      <i>x</i> and outputs a 1 if <i>x</i> satisfies the
+      constraints, and a 0 otherwise.</p>
+
+      <center>
+        <p><img src="imageS7C.JPG" height="211" width="253">
+				<img src="imageLJ1.JPG" height=
+        "202" width="376"></p>
+      </center>
+
+      <p><br>
+      <br>
+      <br>
+      </p>
+
+      <p><b>Finite State Machine Block (FSMB)</b><br>
+      The discrete dynamics of the hybrid system are entered using
+      FSMBs.  These are standard Stateflow machines with a few
+      restrictions from CheckMate.  The inputs to the block must
+      obey the following restrictions.  Each component of the
+      vectorized event input must be a logical function of PTHB
+      outputs only (i.e. events cannot be generated from any
+      FSMB). Each data input must be a logical function of the
+      outputs of PTHBs or FSMBs.</p>
+
+      <center>
+        <p><img src="image25M.JPG" height="259" width="482"></p>
+      </center>
+    </blockquote>
+     
+
+    <p><a name="parameters"></a><b><font size="+2">Entering
+    Parameters</font></b><br>
+    </p>
+
+    <blockquote>
+      <b>Initial Continuous Set</b><br>
+      <br>
+      <br>
+       The initial continuous set is the set of continuous states
+      that the switched continuous system may start from. Create
+      a linearcon object of class <tt>linearcon</tt> in
+      the MATLAB command window workspace using the following
+      command: 
+
+      <p><b><tt>bounce_ICS = {linearcon([],[],[1 0; -1 0; 0 1; 0
+      -1],[1; 0; 2; 0])};</tt></b></p>
+
+      <p>Note that <tt>bounce_ICS</tt> as shown above is a
+      <i>cell array</i> of <tt>linearcon</tt> objects. Each
+      <tt>linearcon</tt> object represents a convex polyhedral
+      region in the continuous state space (type <b><tt>help
+      linearcon</tt></b> at the Matlab command prompt for more
+      information on creating and using <tt>linearcon</tt>
+      objects). This particular initial continuous set is a
+      hyperbox where x1 is between 0 and 1 and x2 is between 0
+      and 2.</p>
+
+      <p>The initial continuous set must be a cell array so that
+      non-convex initial sets can be represented as a union of
+      convex polyhedra. The <i>Initial Continuous Set</i> field
+      in the SCSB dialog should point to the linearcon object
+      that represents the initial continuous set.</p>
+
+      <p>The user should familiarize themself with standard
+      objects in MATLAB, especially <i>cell arrays</i> and
+      <i>structures</i>.</p>
+      <br>
+
+      <p><b>Analysis Region</b><br>
+      </p>
+      The analysis region (AR) is the (full dimensional) bounded
+      convex polyhedron that represents the region of interest.
+      In other words, no analysis is performed for the system
+      beyond the analysis region. Create an analysis region
+      object using 
+
+      <p><tt><b>bounce_AR = linearcon([],[],[1 0; -1 0; 0 1; 0
+      -1],[40; 20; 20; 20]);</b></tt></p>
+
+      <p>To display the content of each object in MATLAB command
+      window, simply type the name of the object (without the
+      semi-colon) and hit enter. For example, to display the
+      content of <tt>bounce_AR</tt>,</p>
+
+      <p><b><tt>&raquo; bounce_AR</tt></b></p>
+
+      <p><b><tt>bounce_AR =</tt><br>
+       <tt>   [ 1.000000 0.000000 ]x &lt;= 40.000000</tt><br>
+       <tt>   [ -1.000000 0.000000 ]x &lt;= 20.000000</tt><br>
+       <tt>   [ 0.000000 1.000000 ]x &lt;= 20.000000</tt><br>
+       <tt>   [ 0.000000 -1.000000 ]x &lt;=
+      20.000000</tt></b></p>
+
+      <p>Similar to the initial continuous set, we have
+      associated the variable <tt>bounce_AR</tt> with the
+      analysis region in the parameter window for block
+      <tt>xy</tt>. As we can see from above, <tt>bounce_AR</tt>
+      is the region {-20 &lt;= x &lt;= 40} and {-20 &lt;= y &lt;=
+      20}.<br>
+      </p>
+
+			<p><b>Parameter Constraint</b><br>
+      </p>
+      The parameter constraint is an object that the SCSB points to.
+			It represents a region of the parameter space for which the system is
+			to be analyzed.  The parameter constraint is a linearcon object and
+			 should be specified in the same way as the Analysis Region.  
+
+			
+      <p><b>Configuring Polyhedral Threshold Blocks</b></p>
+      To configure polyhedral threshold blocks (PTHB's), create a
+      linearcon object in the Matlab workspace (as described
+      above for the <i>Analysis Region</i>) , and then point the
+      field named <i>Polyhedron</i> in the PTHB dialog to it.
+      Note that unlike in the <i>Initial Continuous Set</i> and
+      <i>Analysis Region</i> cases, the polyhedron that a PTHB
+      points to need not be closed.<br>
+
+      <p><b>Function Files</b></p>
+      Two Matlab m-file functions are used to pass parameters to
+      the verification tool: 
+
+      <blockquote>
+        <b><i><tt>&lt;param_func&gt;.m</tt></i></b> returns a
+        structure containing partition parameters for the
+        verification. The global variable <tt>GLOBAL_APARAM</tt>
+        should contain the name of this file (as a string). For
+        example, type<br>
+        <b><tt>global GLOBAL_APARAM</tt></b> at the command line.
+        Then type <tt><b>GLOBAL_APARAM = 'file_name'</b></tt>
+        where <tt>file_name</tt> is the name of the parameter
+        m-file. This allows CheckMate to use the user's
+        parameters during the verification procedure. 
+
+        <p>Note that if any or all of these parameters are not
+        specified by the user, default values are used. If
+        present, this function should return an
+        <i>approx_param</i> structure with some or all following
+        fields:</p>
+
+        <blockquote>
+          <ul>
+            <li>approx_param.dir_tol % tolerance in the direction
+            (angle offset)</li>
+
+            <li>approx_param.var_tol % length of the projection
+            in the cell</li>
+
+            <li>approx_param.size_tol % maximum size of each
+            piece</li>
+
+            <li>approx_param.W % matrix to square the axes to
+            avoid numerical problems</li>
+
+            <li>approx_param.T size of each flowpipe segmen</li>
+
+            <li>approx_param.quantization_resolution</li>
+
+            <li>approx_param.max_bissection % maximum number of
+            bissection for simulation reachability</li>
+
+            <li>approx_param.max_time % maximum time of
+            processing</li>
+
+            <li>approx_param.reachability_depth</li>
+
+            <li>approx_param.min_angle % Angle value (degrees)
+            for eliminating faces in the mapping</li>
+
+            <li>approx_param.med_angle % Angle value (degrees)
+            for eliminating faces in the mapping</li>
+
+            <li>approx_param.extra_angle % Angle value (degrees)
+            for eliminating faces in the mapping</li>
+
+            <li>approx_param.max_angle % Angle value (degrees)
+            for eliminating faces in the mapping</li>
+
+            <li>approx_param.unbound_angle % Angle value
+            (degrees) for eliminating faces in the mapping</li>
+
+            <li>approx_param.edge_factor % Factor to decide if
+            edge will be dropped in the mapping</li>
+
+            <li>approx_param.edge_med_length % Factor to decide
+            if an edge is too small (compared to the mean) to be
+            eliminate</li>
+
+            <li>approx_param.grow_size % For growing operations
+            (when there is a loss of dimension), objects are
+            grown by this much ON EACH SIDE.</li>
+
+            <li>approx_param.max_func_calls % Maximum number of
+            function evaluations allowed for fmincon operations.
+            Note that this value will be multiplied by the system
+            dimension.</li>
+
+            <li>approx_param.func_tol % Termination tolerance on
+            the function value for fmincon operations. Note that
+            this number will be multiplied by the time step size
+            for shrink wrapping operations during flowpipe
+            computations.</li>
+
+            <li>approx_param.max_iter % Number of iterations for
+            fmincon calls. Note that this number will be
+            multiplied by the dimension of the problem.</li>
+
+            <li>approx_param.poly_epsilon % *'epsilon'--tolerance
+            used in feasibility check</li>
+
+            <li>approx_param.poly_bigM % *'bigM'--big M used to
+            check constraint's redundancy</li>
+
+            <li>approx_param.poly_point_tol % *'point_tol'
+            tolerance used in point comparison (distance
+            based)</li>
+
+            <li>approx_param.poly_vector_tol % *'vector_tol'
+            tolerance used in vector comparison (direction
+            based)</li>
+
+            <li>approx_param.poly_hyperplane_tol %
+            *'hyperplane_tol'--tolerance used in hyperplane
+            comparison and in identifying which hyperplanes in a
+            PTHB correspond to a given vertex (in
+            partition_ss)</li>
+
+            <li>approx_param.step_rel_tol % Relative tolerance
+            for step responses.</li>
+
+            <li>approx_param.step_abs_tol % Absolute tolerance
+            for step responses.</li></ul>
+
+              <center>
+                <p><img src="imageENN.JPG" height="395" width=
+                "646"></p>
+              </center>
+        </blockquote>
+
+        <p><br>
+        <b><i><tt>&lt;switch_func&gt;.m</tt></i></b> is used to
+        enter the switched dynamics for each of the SCSBs.  This
+        file name is entered as a property of each SCSB.  It should
+        return the type of overall dynamics (i.e. clock, linear,
+        or nonlinear) and the state derivatives.  If the overall
+        dynamics are clock, the function should return the
+        derivatives as a constant vector of rates for the state
+        variables.  If the dynamics are linear, the function
+        should return a structure <i>sys</i> with the fields
+        <i>sys.A</i> the "A-matrix" for the system, and for
+        affine systems, <i>sys.b</i> containing the constant
+        "b-matrix" of the system.  For nonlinear systems, the
+        function simply returns the right hand side of the
+        differential state equations.</p>
+				
+				<P>Also, the behavior of resets and parameters is specified in the
+				switched dynamics file.  If resets are present in the system (i.e.
+				if they are specified in the SCSB dialog inside the model), the
+				reset value of the state should be returned along with the derivatives
+				of the state vector.  Parameters, if they are present in the model, 
+				should be passed to the switched dynamics function as a paramter.
+				Note that the parameter should only affect the behavior of the 
+				vector field and not the reset behavior.  See below for an example 
+				of how resets and parameters are specified.</P>  
+				
+				<p>The following is an example of a switched dynamics file that
+				specifies a two dimensional system with clock dynamics and 
+				no resets or parameters.<p>
+
+        <center>
+          <p><img src="clock_ex.JPG" ></p>
+        </center>
+				
+				<p>The following is an example of a switched dynamics file that
+				specifies a two dimensional linear system with no resets or 
+				parameters.<p>
+
+        <center>
+          <p><img src="imageTI9.JPG" height="616" width=
+          "646"></p>
+        </center>
+				
+				<p>The following is an example of a switched dynamics file that
+				specifies a three dimensional nonlinear system with resets and 
+				parameters.  Note that the resets defined are associated with 
+				the destination of a transition.  For example, if a transition
+				from state u=1 to u=2 is taken, the reset associated with state
+				u=2 is applied to the state vector.<p>
+
+        <center>
+          <p><img src="nonlin_ex.JPG" ></p>
+        </center>
+      </blockquote>
+			
+      <p><br>
+      <b>Additional Parameters</b></p>
+
+      <p>In addition to the m-file functions above, three global
+      variables must be set prior to running a verification. The
+      name of the Simulink model representing the TEDHS should be
+      entered in <tt>GLOBAL_SYSTEM</tt>. <tt>GLOBAL_PARAM</tt>
+      should contain the name of the parameter m-file function
+      described above, and the ACTL specification to be verified
+      must be entered in <tt>GLOBAL_SPEC</tt>. These additional
+      parameters can be entered manually at the command prompt,
+      or can be set using an m-file script or function.</p>
+    </blockquote>
+    
+    <p><a name="simulation"></a><b><font size="+2">Simulating the
+    Model</font></b></p>
+
+    <p>CheckMate models can be simulated like any other Simulink
+    model. When the <i>play</i> button is hit in the Simulink
+    window, the system is simulated using the initial conditions
+    specified in the <i>SCSB Initial Conditions</i> field inside
+    the SCSB dialog. The type of solver and the solver parameters
+    specified in the <i>Simulation Parameters</i> dialog in the
+    Simulink window menu are used to simulate the system. Any
+    general Simulink sinks may be used to capture or view the
+    behavior of the system during a simulation (i.e. the user is
+    not restricted to the blocks in the CheckMate library).</p>
+    
+    <p><a name="explore"></a><b><font size="+2">Running the
+    Exploration</font></b></p>
+    The explore tool is invoked from the Matlab command window by
+    typing <b><tt>explore</tt></b> at the prompt. In this form,
+    the tool simulates the point entered as the <i>initial
+    condition</i> in the SCSB block parameters for the time
+    specified in the Simulink simulation parameters. After the
+    simulation is complete, the explore routine checks the
+    simulated trajectory against the ACTL specification and
+    informs the user whether or not the trajectory violates the
+    specification.  As mentioned above, if an ICS is defined,
+    explore can be invoked with a <i>-vertices</i> option which will
+    cause the procedure above to be performed on each of the ICS
+    <i>vertices</i>. 
+
+    <p>A sample run of the explore tool is shown here.</p>
+
+    <center>
+      <p><img src="image2VS.JPG"></p>
+    </center>
+    <br>
+    <br>
+     
+
+    <p>This tells the user the initial state of the system, the
+    value of the output of the PTHB's at the initial instant, and
+    that the specification was satisfied.</p>
+
+    <p>As mentioned above, instead of one simulation instance, explore can
+    investigate simulation runs for several initial condition
+    points. At the command line, type the following:</p>
+
+    <p><tt><b>explore -vertices</b></tt></p>
+
+    <p>This explore option will take the vertices of the
+    boing_ICS linearcon and use them as initial conditions for
+    simulation. Explore then tests if the specification holds for
+    each simulation point. </p>
+
+    <p>Also, the user can specify a set of initial condition
+    points. At the command line type:</p>
+
+    <p><tt><b>a=[0 0 ; 1+sqrt(2) 1+2 ; 0 0];</b></tt></p>
+
+    <p><tt><b>explore -points a</b></tt></p>
+
+    <p>This will cause the analysis to explore the trajectories
+    starting from the points x=[0 1+sqrt(2) 0] and x=[0 2 0].</p>
+    
+    <p><a name="runverification"></a><b><font size="+2">Running
+    the Verification</font></b></p>
+    Once the model and parameters are entered, the verification
+    is performed by typing <tt><b>verify</b></tt> at the command
+    prompt. With no options, verify will run through one
+    iteration of the verification process, determine whether or
+    not the system satisfies the specification, and prompt the
+    user accordingly. If the system verifies, the user is
+    informed and the program terminates. If the system does not
+    satisfy, the user is informed and prompted to "press any key
+    to start refining the automaton....". At this point the user
+    can press a key and continue with another refinement
+    iteration, or break the program, save the workspace data and
+    continue the process at a later time. Several option flags
+    are available for the verify command. These options are
+    summarized in the table below. <br>
+
+    <center>
+      <P><table border width="100%">
+        <tr>
+          <td width="25%"><b>Option</b></td>
+
+          <td><b>Description</b></td>
+        </tr>
+
+        <tr>
+          <td>step &lt;<i>step</i>&gt;</td>
+
+          <td>Execute only the single verification step
+          <i>step</i></td>
+        </tr>
+
+        <tr>
+          <td>resume</td>
+
+          <td>Continue the verification process using the current
+          workspace data</td>
+        </tr>
+
+        <tr>
+          <td>nopause</td>
+
+          <td>Refine the quotient system without prompting the
+          user for input</td>
+        </tr>
+
+        <tr>
+          <td>save &lt;<i>savefile</i>&gt;</td>
+
+          <td>Save the workspace data after each iteration using
+          <i>savefile</i>N.mat to save the data after the Nth
+          iteration</td>
+        </tr>
+
+        <tr>
+          <td>close</td>
+
+          <td>Close the Simulink model after the PIHA has been
+          constructed</td>
+        </tr>
+
+        <tr>
+          <td>discard</td>
+
+          <td>Throw away all unreachable states in each
+          iteration</td>
+        </tr>
+      </table></P>
+    </center>
+
+    <p>The basic steps of the verification routine are shown
+    below.<br>
+    <i>Starting the routine</i></p>
+
+    <center>
+      <p><img src="image6EL.JPG"></p>
+    </center>
+
+    <p><i>The refinement decision</i></p>
+
+    <center>
+      <p><img src="imageVGC.JPG"></p>
+    </center>
+
+    <p><i>Positive verification result and program
+    termination</i></p>
+
+    <center>
+      <p><img src="image1Q2.JPG"></p>
+    </center>
+
+    
+    <p><b><a name="viewingresults"></a><font size="+2">Viewing
+    the Results of a Verification</font></b></p>
+    After a verification has been performed, CheckMate gives the
+    user more information beyond dtermining if a specification
+    was satisfied. CheckMate also produces data structures that
+    give the user information about verifaction that was
+    performed. All information about the finite state
+    representation of the system (see the introduction to the
+    theory behind the CheckMate verification procedure) is stored
+    in the Matlab workspace. Three global variables may be of
+    specific interest to the user: <tt>GLOBAL_PIHA,
+    GLOBAL_AUTOMATON,</tt> and <tt>GLOBAL_TRANSITION</tt>. The
+    following gives a brief description of each variable: 
+
+    <ul>
+      <li><tt>GLOBAL_PIHA</tt>: This variable contains all of the
+      information that CheckMate reads from the Simulink model
+      and the workspace. Also, this variable conatains a
+      partitioned version of the system state space, including
+      transitions between each of the partitions. Creating this
+      data structure is the first step in CheckMate's
+      verification analysis.</li>
+
+      <li><tt>GLOBAL_AUTOMATON</tt>: This variable contains
+      regions and connections between those regions. Each region
+      is identified as reachable (from the <i>Initial Continuous
+      Set</i>), or non-reachable. All information needed to
+      compute a flat transition system that conservatively
+      represents the system dynamics is contained in this
+      variable.</li>
+
+      <li><tt>GLOBAL_TRANSITION</tt>: This variable contains the
+      flat transition system. It is created from the information
+      contained in <tt>GLOBAL_AUTAMATON</tt>.</li>
+    </ul>
+
+    <p>The CheckMate routine <i>document</i> takes as an argument
+    any one of these three variables and produces a text file.
+    This text file lists all of the information conatined in the
+    variable.</p>
+
+    
+    <p><b><a name="hints"></a><font size="+2">Useful
+    Hints</font></b></p>
+    Creating a CheckMate model and performing a successful
+    verification can be a tricky task. This section presents some
+    hints to help the user with the process. 
+
+    <ul>
+      <li>When creating linearcon objects to be used in
+      PTHB's, do not specify a hyperplane more than once. In
+      other words, do not specify two PTHB's that share a
+      hyperplane. The verification procedure may try to create
+      regions of the state space that is between the two
+      hyperplanes, causing numercial problems.</li>
+
+      <li>Do not attempt to verify models that have dimension
+      greater than five. The verification procedure is
+      computationally expensive, so much so that higher
+      dimensional systems will take an excessive amount of time
+      to verify and may cause the user's computer to crash.</li>
+
+      <li>Stick to the blocks in the CheckMate library. Using any
+      other blocks (except for the purposes of viewing data) will
+      corrupt CheckMate's analysis of the system.</li>
+    </ul>
+
+    </body>
+</html>
+

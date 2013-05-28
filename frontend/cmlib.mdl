@@ -1,0 +1,581 @@
+Library {
+  Name			  cmlib
+  Version		  6.0
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-1252"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  SampleTimeColors	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  BlockNameDataTip	  off
+  BlockParametersDataTip  on
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  Created		  "Tue May 18 12:22:47 1999"
+  Creator		  "Zhan"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Zhan"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Fri Nov 30 15:51:47 2007"
+  ModelVersionFormat	  "1.%<AutoIncrement:138>"
+  ConfigurationManager	  "none"
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  BlockDefaults {
+    Orientation		    "right"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      DataTypeConversion
+      OutDataTypeMode	      "Inherit via back propagation"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      ConvertRealWorld	      "Real World Value (RWV)"
+      RndMeth		      "Zero"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Gain
+      Gain		      "1"
+      Multiplication	      "Element-wise(K.*u)"
+      ParameterDataTypeMode   "Same as input"
+      ParameterDataType	      "fixdt(1,16,0)"
+      ParameterScalingMode    "Best Precision: Matrix-wise"
+      ParameterScaling	      "[]"
+      OutDataTypeMode	      "Same as input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      HitCross
+      HitCrossingOffset	      "0"
+      HitCrossingDirection    "either"
+      ShowOutputPort	      on
+      ZeroCross		      on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      LatchByCopyingInsideSignal off
+      Interpolate	      on
+    }
+    Block {
+      BlockType		      Logic
+      Operator		      "AND"
+      Inputs		      "2"
+      AllPortsSameDT	      on
+      OutDataTypeMode	      "Logical (see Configuration Parameters: Optimization)"
+      LogicDataType	      "uint(8)"
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Mux
+      Inputs		      "4"
+      DisplayOption	      "none"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      NonVirtualBus	      off
+    }
+    Block {
+      BlockType		      Outport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      OutputWhenDisabled      "held"
+      InitialOutput	      "[]"
+    }
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+    }
+    Block {
+      BlockType		      Step
+      Time		      "1"
+      Before		      "0"
+      After		      "1"
+      SampleTime	      "-1"
+      VectorParams1D	      on
+      ZeroCross		      on
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      "FromPortIcon"
+      Permissions	      "ReadWrite"
+      PermitHierarchicalResolution "All"
+      TreatAsAtomicUnit	      off
+      CheckFcnCallInpInsideContextMsg off
+      SystemSampleTime	      "-1"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+    Block {
+      BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "fixdt(1,16,0)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "[]"
+      SampleTime	      "inf"
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Operator		      ">="
+      InputSameDT	      on
+      LogicOutDataTypeMode    "Logical (see Configuration Parameters: Optimization)"
+      LogicDataType	      "uint(8)"
+      ZeroCross		      on
+      SampleTime	      "-1"
+    }
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  System {
+    Name		    cmlib
+    Location		    [643, 127, 1047, 558]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      SubSystem
+      Name		      "Polyhedral\nThreshold"
+      Ports		      [1, 1]
+      Position		      [65, 62, 125, 108]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskType		      "PolyhedralThreshold"
+      MaskDescription	      "This block represents a closed polyhedral region of the form C*x <= d. S"
+"ee the CheckMate documentation in the \"/CheckMate/doc/\" directory for a complete description of this block."
+      MaskPromptString	      "Polyhedron (@linearcon from work space)"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "polyhedron=@1;"
+      MaskDisplay	      "plot(poly_icon(1),poly_icon(2)); disp('C*x <= d')"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "floor"
+      System {
+	Name			"Polyhedral\nThreshold"
+	Location		[375, 267, 956, 514]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "x"
+	  Position		  [25, 28, 55, 42]
+	  IconDisplay		  "Port number"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant"
+	  Position		  [105, 85, 125, 105]
+	  Value			  "get_linearcon_param(polyhedron,'dI')"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant1"
+	  Position		  [175, 140, 195, 160]
+	  OutDataTypeMode	  "boolean"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion"
+	  Position		  [395, 16, 450, 44]
+	  OutDataTypeMode	  "double"
+	}
+	Block {
+	  BlockType		  HitCross
+	  Name			  "Hit \nCrossing"
+	  Ports			  [1]
+	  Position		  [510, 15, 540, 45]
+	  HitCrossingOffset	  "0.5"
+	  HitCrossingDirection	  "either"
+	  ShowOutputPort	  off
+	}
+	Block {
+	  BlockType		  Logic
+	  Name			  "Logical\nOperator"
+	  Ports			  [1, 1]
+	  Position		  [320, 84, 350, 116]
+	  Inputs		  "1"
+	}
+	Block {
+	  BlockType		  Gain
+	  Name			  "Matrix\nGain"
+	  Position		  [100, 20, 130, 50]
+	  Gain			  "get_linearcon_param(polyhedron,'CI')"
+	  Multiplication	  "Matrix(K*u)"
+	  ParameterDataType	  "sfix(16)"
+	  ParameterScaling	  "2^0"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Mux
+	  Name			  "Mux"
+	  Ports			  [2, 1]
+	  Position		  [250, 82, 285, 118]
+	  Inputs		  "2"
+	}
+	Block {
+	  BlockType		  RelationalOperator
+	  Name			  "Relational\nOperator"
+	  Position		  [175, 27, 205, 58]
+	  Operator		  "<="
+	  LogicOutDataTypeMode	  "boolean"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "threshold"
+	  Position		  [510, 93, 540, 107]
+	  IconDisplay		  "Port number"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  SrcBlock		  "Constant"
+	  SrcPort		  1
+	  DstBlock		  "Relational\nOperator"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Matrix\nGain"
+	  SrcPort		  1
+	  DstBlock		  "Relational\nOperator"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "x"
+	  SrcPort		  1
+	  DstBlock		  "Matrix\nGain"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant1"
+	  SrcPort		  1
+	  Points		  [30, 0; 0, -40]
+	  DstBlock		  "Mux"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Relational\nOperator"
+	  SrcPort		  1
+	  Points		  [20, 0; 0, 45]
+	  DstBlock		  "Mux"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Mux"
+	  SrcPort		  1
+	  DstBlock		  "Logical\nOperator"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Logical\nOperator"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  Branch {
+	    Points		    [0, -70]
+	    DstBlock		    "Data Type Conversion"
+	    DstPort		    1
+	  }
+	  Branch {
+	    DstBlock		    "threshold"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion"
+	  SrcPort		  1
+	  DstBlock		  "Hit \nCrossing"
+	  DstPort		  1
+	}
+	Annotation {
+	  Name			  "This dummy constant is used to corect \nthe simulation problem that arises when \nthere "
+"is only one hyperplane in the \npolyhedral threshold block."
+	  Position		  [194, 209]
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Start Event"
+      Ports		      [0, 1]
+      Position		      [140, 183, 185, 227]
+      TreatAsAtomicUnit	      on
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskType		      "Start event"
+      MaskDescription	      "Output a step."
+      MaskHelp		      "Outputs a step from false to true."
+      MaskPromptString	      "Step time:|Initial value:|Final value:|Sample time:|Interpret vector pa"
+"rameter as 1D|Enable zero crossing detection"
+      MaskStyleString	      "edit,edit,edit,edit,checkbox,checkbox"
+      MaskTunableValueString  "on,off,off,on,off,off"
+      MaskCallbackString      "|||||"
+      MaskEnableString	      "on,off,off,on,off,off"
+      MaskVisibilityString    "on,on,on,on,on,on"
+      MaskToolTipString	      "on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,"
+      MaskVariables	      "steptime=@1;initval=@2;finival=@3;sampletime=@4;interpret=&5;enable=&6;"
+      MaskDisplay	      "plot([0 1 1 2],[0 0 0.5 0.5])"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "1|0|1|0|on|on"
+      MaskTabNameString	      ",,,,,"
+      System {
+	Name			"Start Event"
+	Location		[180, 299, 678, 599]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion"
+	  Position		  [260, 101, 315, 129]
+	  OutDataTypeMode	  "boolean"
+	}
+	Block {
+	  BlockType		  Step
+	  Name			  "start"
+	  Position		  [160, 100, 190, 130]
+	  Time			  "steptime"
+	  Before		  "initval"
+	  After			  "finival"
+	  SampleTime		  "sampletime"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [365, 108, 395, 122]
+	  IconDisplay		  "Port number"
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "start"
+	  SrcPort		  1
+	  DstBlock		  "Data Type Conversion"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Switched Continuous\nSystem"
+      Ports		      [2, 1]
+      Position		      [210, 62, 270, 118]
+      AncestorBlock	      "cmlib/Switched Continuous\nSystem"
+      FunctionName	      "scsb_sfun"
+      Parameters	      "nx,nup,nz,nu,x0,swfunc,p0,use_reset,use_param,use_sd,get_linearcon_param(A"
+"R,'CI'),get_linearcon_param(AR,'dI')"
+      EnableBusSupport	      off
+      MaskType		      "SwitchedContinuousSystem"
+      MaskDescription	      "This block represents a switched continuous dynamic system. The switchin"
+"g function is m-file function f(x,u) that outputs the continuous derivative xdot given continuous var"
+"iable x and discrete (integer) input u. Initial continuous set and analysis region parameters are use"
+"d for PIHA conversion purpose only. They do not affect the simulation result. They must be @linearcon"
+" objects imported from the main workspace in the MATLAB command window. "
+      MaskPromptString	      "Number of Continuous States|Perform Sampled-Data Difference Equation An"
+"alysis (beta version)|Number of Controller Outputs|Number of Discrete-Time Controller States|Show Sta"
+"te Reset Port|Number of Integer Inputs from Stateflow Blocks|Initial Conditions|Switching Function m-"
+"file|Initial Continuous Set (@linearcon cell array from workspace)|Analysis Region (@linearcon from w"
+"ork space)|Use Parameter Constraints|Default Parameter|Parameter Constraints (@ linearcon from workspace)|Old Parameter"
+      MaskStyleString	      "edit,checkbox,edit,edit,checkbox,edit,edit,edit,edit,edit,checkbox,edit,edit,edit"
+      MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskCallbackString      "|||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,off,off,on,on,on,on,on,on,on,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "nx=@1;use_sd=@2;nup=@3;nz=@4;use_reset=@5;nu=@6;x0=@7;swfunc=&8;ICS=@9;A"
+"R=@10;use_param=@11;p0=@12;PaCs=@13;np=@14;"
+      MaskInitialization      "scsb_mask_handler(gcb)"
+      MaskDisplay	      "plot(scsb_icon(1),scsb_icon(2))"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "1|off|[]|[]|on|1|1||linearcon|linearcon|off|[]|[]|"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Annotation {
+      Name		      "Customized Blocks"
+      Position		      [88, 31]
+      FontSize		      14
+      FontWeight	      "bold"
+    }
+    Annotation {
+      Name		      "These are customized specifically for the CheckMate toolbox. \nLibrary link should be maintained."
+      Position		      [186, 323]
+    }
+  }
+}
+Stateflow {
+  machine {
+    id			    1
+    name		    "tp491ca56a_3a48_4506_869c_10aba7397a7b"
+    created		    "10-Dec-2001 10:09:24"
+    locked		    1
+    isLibrary		    1
+    firstTarget		    2
+    sfVersion		    71014000.000003
+  }
+  target {
+    id			    2
+    name		    "sfun"
+    description		    "Default Simulink S-Function Target."
+    codeFlags		    " debug=1 telemetry=0 preservenames=0 preservenameswithparent=0 exportcharts=0 pro"
+"ject=0 multiinstanced=0 statebitsets=0 databitsets=0 comments=1 echo=1 initializer=1 ioformat=1"
+    machine		    1
+    linkNode		    [1 0 0]
+  }
+}

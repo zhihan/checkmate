@@ -1,0 +1,28 @@
+Install Intructions
+**********************************************************
+
+1.  If you have installed a previous version of CheckMate, copy any CheckMate models you have created and saved in the previous CheckMate directory path into another directory. Then delete the previous CheckMate root directory and all subdirectories, and delete CheckMate paths from the MATLAB path list by choosing "Set Path" from the File menu in the MATLAB command window, selecting all CheckMate paths, and clicking "Remove."
+
+ 
+2.  Download the zip file CheckMate file(zipped) . 
+
+
+3.  Choose a directory as the root directory for CheckMate and unzip the downloaded file into that directory. 
+NOTE: You should create (or let your unzip program create) the root directory for CheckMate. 
+
+
+4.  Go to the CheckMate root directory in the MATLAB command window. 
+
+
+5.  Install CheckMate into the MATLAB path list by typing at the MATLAB command prompt:
+>>install 
+
+
+6.  In order to save the path information, choose "Set Path" from the File menu in the MATLAB command window, and click "Save."  You do not have to perform this step to use CheckMate, but if you do not perform this step, you will have to run "install" everytime you open Matlab and want to use CheckMate.
+
+
+-CheckMate Simulink blocks are available in the Simulink library (type simulink). 
+
+-CheckMate documentation is displayed by typing cmhelp. 
+
+-See readme.txt in the CheckMate root directory for information about the current version of CheckMate. 

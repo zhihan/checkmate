@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>VCT System</title>
+</head>
+<body>
+<a name="top"></a> 
+
+<h1>The Variable Cam Timing System</h1>
+
+<p>The VCT system is an automotive application in
+which a computer controlled hydraulic actuator is used to vary the
+phase of the cam shaft of an engine with respect to its crankshaft.
+The controller's task is to regulate the position of the actuator to a
+given setpoint.  The controller has three modes: one in which standard
+PID control is employed, one in which the controller output is
+saturated high, and one in which it is saturated low.  The property to
+be verified is that no more than one mode transition should ever be
+taken.  Figure 1 shows an overview of the VCT system.</p>
+
+<center><img src="figures/VCT_schematic.jpg" width="500" alt=
+"sim5d"><br>
+ <b>Figure 1:</b> Overview of the VCT system.</center>
+
+<p>The controller is a switched-mode, computer controller, meaning that its output 
+is governed by a set of difference equations where the mode of the controller 
+determines the difference equations that are used.  In order to analyze this type
+of system, that is, a switched-mode computer controller that is controlling a 
+continuous time plant, sampled data reachability analysis is employed.  This is a
+special type of reachability analysis that exploits the sampled data nature of the
+problem.</p>
+
+<p>Note that 3 versions of the VCT system appear in the current release of CheckMate.
+  One of the models illustrates the system passing the
+verification test for one set of initial conditions.  However, the system does not satisfy the
+requirements for every set of initial conditions, so a second model illustrates the
+system failing the verification test for another set of initial conditions.  A third
+model illustrates a nonlinear version of the VCT system.</p>
+ 
+<p>Figure 3 illustrates the behavior of the VCT system in simulation.  The simulation 
+begins with the controller in saturation mode.  At some point near 20 ms, the controller
+switches modes to the PID control mode and remains there.  This is the desired 
+behavior of the system.</p>
+
+<center><img src="figures/VCT_plot.jpg" width="400" alt=
+"sim5d"><br>
+ <b>Figure 2:</b> VCT system behavior in simulation.</center>   
+ 
+<a name="checkmatemodel"></a> 
+
+<h2>The CheckMate Model</h2>
+
+<p>Figure 3 shows the top level CheckMate model of the VCT system.  The switching conditions
+are given by the (green) polyhedral threshold blocks (PTHB's), the mode switching takes 
+place inside the Stateflow block (in yellow), and the difference equation behavior of the controller
+, as well as the differential equations governing the plant, take place in the 
+switched continuous system block (the SCSB in blue).</p>  
+ 
+<center><img src="figures/VCT_simulink.jpg" width="700" alt=
+"sim5d"><br>
+ <b>Figure 3:</b> CheckMate model of the VCT system.</center> 
+ 
+<p>Notice also the variable zero order
+hold (VZOH) block (with the clock picture).  This block provides sampling pulses to
+the Stateflow block and the SCSB.  Figure 4 shows the VZOH dialogue box.  The period is given
+by a row vector of length 2, where both elements of the vector are the period 
+(e.g., period=[.1 .1]).  The VZOH block will eventually be extended so that the elements
+of the period field will represent a range of sample periods for which the system
+can be analyzed, but currently, only a single sample period is supported.  Similarly,
+Initial Displacement and Periodic Jitter are not currently supported, and so their
+values must be set to phase=[0 0] and jitter=[0 0].</p>  
+ 
+<center><img src="figures/VCT_clock.jpg" alt=
+"sim5d"><br>
+ <b>Figure 4:</b> Variable Zero Order Hold dialogue box.</center>  
+
+<p>Also notice the step input that is connected to both the VZOH
+block and the Stateflow block in figure 3.  This provides the initial impulse that is needed
+to begin the simulation. </p> 
+ 
+<p>Figure 5 shows the dialogue box for the SCSB.  Note that the "Perform Sampled-
+Data Difference Equation Analysis" box is checked.  This tells CheckMate that the
+system dynamics will be specified as both continuous time differential equations
+and discrete time difference equations.  The dialogue box also specifies the number
+of continuous time states, the number of discrete time states, and the number of 
+controller outputs.  The initial conditions are specified as the continuous time 
+states concatenated with the discrete time states (e.g., [x_c1;x_d1;x_d2] ).</p>
+
+<center><img src="figures/VCT_dialogue.jpg" width="380" alt=
+"sim5d"><br>
+ <b>Figure 5:</b> Dialogue box for switched continuous system.</center> 
+
+<a name="dynamics"></a> 
+
+<h2>Specifying System Dynamics for Switched Mode Computer Controlled Systems</h2> 
+<p>As with other CheckMate models, the system dynamics are specified in user defined
+m-files.  For the sampled data case,  the user defined function returns the state
+derivatives, controller update equations, and the type of
+continuous system.  The function is provided a controller/plant discrete state (an integer, u), and 
+it returns a vector representing the continuous-time state variable derivatives along with the
+discrete-time update equations for the controller states and outputs.  The input
+vector x is assumed to have the form:</p>
+    
+<b>x = [ x ; z ]   </b>
+    
+<p>where x is the continuous state-vector (the plant state),
+z is the discrete-time state vector (the controller state).</p>
+
+<p>The output vector, sys, is assumed to have the following form:</p>
+
+<b>sys = [ dx/dt ; z(n+1) ]</b>
+
+<p>The continuous time derivatives of z are assumed to be zero.  So the continuous variables evolve
+during a sample period.  Then the z variables are updated at the next sample instant.
+For the linear case, reachability makes use of the A and b matrices for the plant and controller.
+In this case, sys should have the following structure:</p>
+
+<b>sys.A  = plant A matrix<br>
+sys.b  = plant b matrix<br>
+sys.r  = plant r vector<br>
+sys.C  = plant C matrix<br>
+sys.Ap = controller state A matrix<br>
+sys.bp = controller state b matrix<br>
+sys.rp = controller state r vector<br>
+sys.Cp = controller C matrix<br>
+sys.Dp = controller D matrix<br>
+sys.rpp= controller output r vector<br></b>
+
+<p>where the system equations are assumed to be:</p>
+
+<b>dxp/dt = A*x+b*up+r<br>
+    <br>
+y = C*x<br>
+     <br>
+z(n+1) = Ap*z(n)+bp*y+rp<br>
+     <br>
+up(n) = Cp*z(n)+Dp*y(n)+rpp<br></b>
+     
+<p>For the nonlinear case, the input vector x is assumed to have the form:</p>
+     
+ <b>  x = [ x ; z ; up]  </b>  
+     
+ <p>where x is the continuous state-vector (the plant state),
+ z is the discrete-time state vector (the controller state), and up is the controller output vector.</p>
+ 
+<p> The output vector, sys, is assumed to have the following form:</p>
+ 
+<b>sys = [ dx/dt ; z(n+1) ; up(n)]</b>
+ 
+ 
+ <p>Again, the continuous time derivatives of z are assumed to be zero.  So the continuous variables evolve
+ during a sample period.  Then the z variables are updated at the next sample instant.</p>
+ 
+<a name="verification"></a> 
+
+<h2>The Verification</h2>
+<p>Again, the VCT system does not satisfy the given property for all possible
+initial conditions.  Using discrete time reachability analysis, however, we can
+identify sets of initial conditions for which the system does satisfy the
+given property and sets of initial conditions for which the system
+never satisfies the property.</p>
+
+<p>Figure 6 illustrates the reachability analysis performed on the VCT system.  The 
+figure shows the projection of the reachset onto two of the three dimensions.  
+The reachability analysis is performed twice:  once for a set of initial conditions
+that pass the verification test and once for a set that does not. </p> 
+
+<p>The set of initial conditions labeled "Safe ICS" propagate into the PID mode, switching 
+modes exactly once, and enter a Lyapunov ellipsoid (i.e., a region of the state 
+space that, once entered, the system is guaranteed to never leave), which is 
+found automatically by CheckMate.  In this case, 
+we know that the requirement that the system switch modes exactly once is satisfied 
+for all <i>t</i>.  </p>
+
+<p>The set of initial conditions labeled "Unsafe ICS" propagate into the PID mode, then
+back into the Sat Low mode, and then end up in the PID mode, for a total of 2 mode
+switches.  This clearly illustrates a set of initial conditions for which the 
+system fails the specification.</p>
+ 
+<center><img src="figures/VCT_statespace.jpg" width="700" alt=
+"sim5d"><br>
+ <b>Figure 6:</b> Reachability analysis for VCT system.</center>   
+ 
+
+
+
+</body>
+</html>
+

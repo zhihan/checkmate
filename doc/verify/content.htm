@@ -1,0 +1,1313 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000FF" vlink="#FF0000" alink="#000088">
+&nbsp;
+<table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="100%" >
+<tr>
+<td BACKGROUND="../hback.jpg" NOSAVE><b><i><font color="#000000"><font size=+4>C</font><font size=+2>HECK</font><font size=+4>M</font><font size=+2>ATE
+</font><font size=+4>V</font><font size=+2>ERIFICATION
+</font><font size=+4>T</font><font size=+2>OOL</font></font></i></b></td>
+</tr>
+</table>
+
+<h2>
+<a NAME="introduction"></a><font color="#000099">1 Introduction</font></h2>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=2 WIDTH="100%" >
+<tr VALIGN=TOP>
+<td NOSAVE>CheckMate implements the verification technique that conservatively
+approximates the original hybrid system model by purely discrete and finite
+models called <i>quotient transition systems</i> or <i>approximating automata</i>.
+The verification is initiated by typing the command <tt>verify</tt>
+in the MATLAB command window. The verification process in CheckMate follows
+the flow diagram shown on the left.
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>The CheckMate verification procedure is implemented in the m-file <b><font color="#CC0000">verify.m</font></b>
+located in the directory <b><font color="#CC0000">~/approximation</font></b>.
+The m-file can be invoked from the MATLAB command window.</td>
+</tr>
+</table></center>
+
+<p>The class of hybrid systems that can be modeled in CheckMate <a href="#frontend">front
+end</a> is called the <i><a href="content.htm#TEDHS">threshold-event-driven
+hybrid systems (TEDHS)</a></i>. The verification process starts by the
+<a href="content.htm#PIHA_conversion">conversion</a>
+of the Simulink model into an equivalent model called a <i><a href="content.htm#PIHA">polyhedral-invariant
+hybrid automaton (PIHA)</a></i>. The resulting PIHA is discretized to form
+a <i><a href="#QTS">quotient transition system (QTS)</a></i> by an <a href="#init_partition">initial
+partition</a> that is constructed according to the parameters specified
+by the user. Transitions between states in the QTS are computed using
+the continuous reachability analysis technique called the <i><a href="#flow_pipe">flow
+pipe approximations</a></i>. The QTS is then verified against the <a href="#ACTL">ACTL
+specification</a> using standard <i>model checking</i> technique for finite-state
+transition systems. Since the verification may fail due to the coarseness
+of the hybrid system approximation by the QTS, the partition for the QTS
+can be refined to give a tighter approximation. After the partition refinement,
+the flow pipe approximation is used to redefined the transitions in the
+QTS. The process repeats until the QTS satisfies the specification or the
+user chooses to terminate the verification. The subsequent sections describe
+each step of the verification in more detail.</td>
+
+<td VALIGN=CENTER WIDTH="30%">
+<center><img SRC="flowdgm.gif" height=537 width=294 align=CENTER>
+<p><b><font color="#CC0000">Verification Overview</font></b></center>
+</td>
+</tr>
+</table>
+
+<h2>
+<a NAME="HS_models"></a><font color="#000099">2 Models of Hybrid Systems</font></h2>
+In order to understand how CheckMates works, the user should familiarize
+oneself with two models of hybrid systems, the <i>threshold-event-driven
+hybrid systems (TEDHS)</i> and the <i>hybrid automata</i>, which are the
+bases for modeling and analysis in CheckMate, respectively.
+<h3>
+<a NAME="TEDHS"></a><font color="#000099">2.1 Threshold-event-driven Hybrid
+Systems (TEDHS)</font></h3>
+A threshold-event-driven hybrid system consists of three types of subsystems,
+the <i>switched continuous&nbsp; system (SCS)</i>, the <i>threshold event
+generator (TEG)</i>, and the <i>finite state machine (FSM)</i>.&nbsp; Without
+loss of generality we assume that there is only one subsystem of each type
+as shown in figure below. Multiple subsystems of the same type can be reduced
+into a single subsystem by vectorizing the input and output signals.
+<center>
+<p><img SRC="tedhs.gif" BORDER=0 height=395 width=646>
+<br><b><font color="#CC0000">Threshold-event-driven Hybrid System</font></b></center>
+
+<p>The SCS is the continuous dynamics systems that takes in the discrete-valued
+input <i>u</i> and produces its continuous state vector <i>x</i> as the
+ouput. The continuous dynamics for <i>x</i> evolves according to the differential
+equation or differential inclusions selected by the discrete input <i>u</i>
+as shown in the above figure. The output of the SCS is fed into the TEG,
+which produces an event when a component of the vector function g of x
+crosses its corresponding threshold from the specified direction (rising,
+falling, or both). The event signals from the TEG drives the discrete transition
+in the FSM whose output, in turn, drives the continuous dynamics of the
+SCS.
+<h3>
+<font color="#000099">2.2 Hybrid Automata</font></h3>
+A hybrid automaton, shown below, is a generalization of the finite automaton
+that includes continuous dynamics in with each discrete state. Each discrete
+state in the hybrid automaton is called a <i>location</i>. Associated with
+each location is the <i>invariant</i>, the condition which the continuous
+state must satisfy while the hybrid automaton resides in that location,
+and the flow equation representing continuous dynamics in that location.
+<center><img SRC="ha.gif" NOSAVE height=331 width=630>
+<br><b><font color="#CC0000">Hybrid Automaton</font></b></center>
+
+<p>Transitions between locations are called <i>edges</i>. Each edge is
+labeled with the <i>guard</i> and the <i>reset</i> conditions on the continuous
+state. The location transition is <i>enabled</i>, i.e. allowed to be taken,
+when the guard condition is satisfied. Upon the location transition, the
+values of the continuous state before and after the transition must satisfy
+the reset condition.
+<center><img SRC="hatran.gif" NOSAVE height=350 width=583>
+<br><b><font color="#CC0000">Location Transition in a Hybrid Automaton</font></b></center>
+
+<h3>
+<a NAME="PIHA"></a><font color="#000099">2.3 Polyhedral-Invariant Hybrid
+Automata</font></h3>
+In general, the analysis of hybrid automata can be very difficult. In CheckMate,
+we restrict our attention to a subclass of hybrid automata called <i>polyhedral-invariant
+hybrid automata (PIHA)</i>. A polyhedral-invariant hybrid automaton is
+a hybrid automaton with the following restrictions:
+<ul>
+<li>
+The continuous dynamics for each location is governed by an ordinary differential
+equation (ODE).</li>
+
+<li>
+Each guard condition is a linear inequality (a hyperplane guard).</li>
+
+<li>
+Each reset condition is an identity.</li>
+
+<li>
+For the hybrid automaton to remain in any location, all guard conditions
+must be false. The restriction implies that the invariant condition for
+any location is the convex polyhedron defined by conjunction of the complements
+of the guards. This gives rise to the name polyhedral-invariant hybrid
+automaton.</li>
+</ul>
+
+<center><img SRC="piha.gif" NOSAVE height=298 width=597>
+<br><b><font color="#CC0000">Polyhedral-Invariant Hybrid Automaton</font></b></center>
+
+<h2>
+<a NAME="frontend"></a><font color="#000099">3 Simulink Front End</font></h2>
+The modeling front end for CheckMate is built on top of Simulink to take
+advantage of it simulation capability. While numerical simulations cannot
+guarantee the correct operation of the systems under all possible circumstance,
+the user can learn a great deal about the behaviors of the system and evaluate
+wheter the possibly lengthy verification should be attempted. CheckMate
+uses the following customized (<i>masked</i>) blocks in Simulink to model
+the three components of the TEDHS discussed previously.
+<h3>
+<font color="#000099">3.1 Switched Continuous System Block (SCSB)</font></h3>
+
+<center><img SRC="scsb.gif" NOSAVE height=118 width=206></center>
+A switched continuous system block (SCSB) represents a continuous system
+whose dynamics for the continuous variable <i>x</i> depends on the value
+of the discrete input <i>u</i>, i.e. the continuous dynamics is of the
+form
+<center><img SRC="nleqn.gif" NOSAVE height=38 width=124>.</center>
+Currently, 3 types of continuous dynamics can be specified for each value
+of the discrete input <i>u</i>. They are shown in the table below.
+<br>&nbsp;
+<center><table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="80%" >
+<tr BGCOLOR="#FFFFCC">
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Description</b></center>
+</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><tt>'clock'</tt></td>
+
+<td>Continuous dynamics of the form&nbsp;<img SRC="clkeqn.gif" NOSAVE height=27 width=50>where
+<i>c</i>
+is a constant vector.</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><tt>'linear'</tt></td>
+
+<td>Continuous dynamics of the form&nbsp;<img SRC="affeqn.gif" NOSAVE height=24 width=96>where
+<i>A</i>
+and <i>b</i> are constant <i>n</i>x<i>n</i> matrix and <i>n</i>x1 vector,
+respectively.</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><tt>'nonlinear'</tt></td>
+
+<td>General continuous dynamics dynamics of the form&nbsp;<img SRC="nleqn2.gif" NOSAVE height=30 width=83>.</td>
+</tr>
+</table></center>
+
+<p>See <a href="../mechanics/ver_mechanics.htm" target="_top">Using CheckMate
+Verification Tool</a> for detail on how to specify the parameters for an
+SCSB.
+<h3>
+<font color="#000099">3.2 Polyhedral Threshold Block (PTHB)</font></h3>
+
+<center><img SRC="pthb.gif" NOSAVE height=137 width=210></center>
+A polyhedral threshold block (PTHB) represents a polyhedral region <i>Cx
+&lt;= d</i> in the continuous space of the input variable <i>x</i>. The
+output is a binary signal indicating whether <i>x</i> is inside the region
+or not, i.e. whether the condition <i>Cx &lt;= d</i> is true<i>. </i>See
+<a href="../mechanics/ver_mechanics.htm" target="_top">Using
+CheckMate Verification Tool</a> for detail on how to specify the parameters
+for a PTHB.
+<h3>
+<font color="#000099">3.3 Finite State Machine Block (FSMB)</font></h3>
+
+<center><img SRC="fsmb.gif" NOSAVE height=234 width=298></center>
+A finite state machine block (FSM) represents a finite state transition
+system driven by the event and data input. It is implemented by the regular
+Stateflow block with the following restrictions:
+<ul>
+<li>
+No hierachy is allowed in the Stateflow diagram. (This restriction will
+be lifted if we have enough resources to work on extracting hierachical
+information in the Stateflow diagram).</li>
+
+<li>
+<i>Data</i> inputs must be boolean functions of the PTHB and FSMB outputs
+only.</li>
+
+<li>
+<i>Event</i> inputs must be boolean functions of the PTHB outputs only,
+i.e. events can only be generated the continuous trajectory leaving or
+entering polyhedral regions.</li>
+
+<li>
+Only one <i>data</i> output is allowed. Every state in the Stateflow diagram
+is required to have an <i>entry action</i> that sets the data output to
+a unique value for that state.</li>
+
+<li>
+No action other than the entry action discussed above is allowed in the
+Stateflow diagram.</li>
+</ul>
+See <a href="../mechanics/ver_mechanics.htm" target="_top">Using CheckMate
+Verification Tool</a> or the CheckMate models in the <b><font color="#CC0000">~/demo</font></b>
+directory for examples of FSMBs that comply with the above rules.
+<p>A sample CheckMate diagram is shown below.
+<center><img SRC="sampledgm.gif" height=498 width=602></center>
+
+<h2>
+<a NAME="PIHA_conversion"></a><font color="#000099">4 TEDHS to PIHA Conversion</font></h2>
+Although TEDHS support block diagram modeling, which is a very intuitive
+way to model hybrid systems, much of the theoretical work in the field
+of hybrid systems has been developed using the hybrid automaton framework.
+Thus, CheckMate converts the TEDHS in the Simulink front-end into an equivalent
+PIHA (up to the analysis region) before performing any further analysis
+for
+the hybrid systems. The conversion, as implemented in the m-file <b><font color="#CC0000">piha.m</font></b>,
+proceeds as follows.
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>The procedure for converting the TEDHS in the front end into a PIHA
+is implemented in the m-file <b><font color="#CC0000">piha.m</font></b>
+located in the directory <b><font color="#CC0000">~/frontend/@piha</font></b>.
+The m-file is implemented as the constructor for the object class 'piha'
+but the return variable is never treated as an object in the subsequent
+code in <b><font color="#CC0000">verify.m</font></b>. Instead the PIHA
+is converted into a regular structure variable so that its fields can be
+accessed directly. Implementing the object class 'piha', however, could
+prove useful when composition of multiple PIHA is considered in the future.</td>
+</tr>
+</table></center>
+
+<h3>
+<font color="#000099">4.1 Verifying the Model Syntax</font></h3>
+In this step the function <tt>piha()</tt> calls the subroutine <tt>check_model_syntax()</tt>
+to make sure that the Simulink model that the user enters belongs to the
+class of hybrid systems that CheckMate can handle.
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#FFD9DC" >
+<tr>
+<td><b><i><font color="#CC0000">Disclaimer:</font></i></b> The function
+<tt>check_model_syntax()</tt>
+is not completed yet. The user needs to make sure that the Simulink model
+conforms to the rules outlined in the previous section.&nbsp;</td>
+</tr>
+</table></center>
+
+<h3>
+<a NAME="block_order"></a><font color="#000099">4.2 Compiling the List
+of Blocks and Threshold Hyperplanes</font></h3>
+Next, the function <tt>piha()</tt> creates the list of SCSBs, FSMBs, and
+PTHBs found in the Simulink model. CheckMate goes through the list of PTHBs
+and extract all the hyperplanes contained in the rows of the (C,d) matrix-vector
+pair associated with each PTHB. Since each PTHB may not be connected to
+all SCSBs, the columns of the matrix C is rearranged and augmented with
+zero columns to obtain the new C matrix that corresponds to the cross product
+of the continuous state spaces from the SCSBs in the order compiled earlier.
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>Each block in the Simulink model is an object identified by a unique
+number called a handle. Simulink has its own system of assigning the object
+handles which is separated from the handle systems of MATLAB standard GUI
+and Stateflow. Using the function <tt>get_param()</tt> and <tt>set_param()</tt>,
+the user can manipulate various properties of a Simulink object.</td>
+</tr>
+</table></center>
+
+<h3>
+<a NAME="AR_partition"></a><font color="#000099">4.3 Partitioning the Analysis
+Region into Cells by the Threshold Hyperplanes</font></h3>
+CheckMate limits its scope of analysis to the bounded region in the continuous
+state space called <i>analysis region</i>. A bounded convex analysis region
+must be specified as one of the parameters for each SCSB. The overall analysis
+region is first computed from the cross product of all SCSB analysis regions
+(in the order obtained in Section 3.2) then partitioned by the threshold
+hyperplanes into <i>cells</i>. The figure below shows an example of the
+analysis region partitioning by three hyperplanes.
+<center><img SRC="sspart.gif" NOSAVE height=325 width=456>
+<br><b><font color="#CC0000">Analysis Region Partitioning by Threshold
+Hyperplanes</font></b></center>
+
+<p>Threshold hyperplanes are introduced into the partition one by one in
+each stage of the partitioning. In each stage, the partition information
+is maintained in a tree structure with the whole analysis region at the
+root as shown in the figure below.
+<center><img SRC="treeanim.gif" height=463 width=541>
+<br><b><font color="#CC0000">Analysis Region Partition Tree (Animated)</font></b></center>
+
+<p>The tree is expanded when a hyperplane is introduced by spliting the
+leaf nodes as needed. In our examples, the hyperplanes are introduced in
+the ascending numerical order. Once all hyperplanes are introduced, the
+leaf nodes consitutes the cells in the analysis region partition as shown
+in the above figure. The same figure without the animation is reproduced
+below so that the reader can examine the final tree structure more carefully.
+<center><img SRC="sstree3.gif" height=463 width=541>
+<br><b><font color="#CC0000">Analysis Region Partition Tree</font></b></center>
+
+<p>After the partitioning is completed, the leaf nodes (the cells) are
+intersected with the initial continuous sets (augmented for the full continuous
+statespace) from SCSBs. The cells that overlap with the initial continuous
+sets are called the <i>initial cells</i>. These are the cells from which
+the continuous trajectory of the hybrid system may originate.
+<p>Note that we need not consider any subtree for which the hyperplane
+does not pass through the polytope of the root node. Thus, using the tree
+structure can improve efficiency of the partitioning process significantly
+in the case where the number of threshold hyperplanes is large. The same
+kind of efficiency can be achieved when finding the initial cells by traversing
+the partition tree and ignore the subtree for which the root node does
+not overlap with the initial continuous set.
+<p>The tree should be as balanced as possible for the analysis region partitioning
+or the initial cell intersection algorithm to be most efficient. Thus,
+before the analysis region partitioning begins, the hyperplanes are sorted
+so that the ones that are most centered with respect to the analysis region
+are introduced first. To do this, we introduce the quantity called the
+<i>normalized
+deviation</i> (not a standard term in literature) which is a non-negtive
+number that measures the centered-ness of each hyperplane with respect
+to the analysis region. The smaller the normalized deviation, the more
+centered that hyperplane is with respect to the analysis region.
+<p>CheckMate maintains the following information about the each cell in
+the analysis region partition.
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=2 WIDTH="90%" >
+<tr VALIGN=TOP>
+<td WIDTH="20%"><b><font color="#CC0000">boundary</font></b></td>
+
+<td>the indices to hyperplanes (in the list compiled earlier) constituting
+the cell boundary</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><b><font color="#CC0000">hpflags</font></b></td>
+
+<td>an array of boolean flags, one for each hyperplane <i>c<sub>i</sub><sup>T</sup>x</i>
+= <i>d<sub>i</sub></i> in the list, indicating whether the inequality <i>c<sub>i</sub><sup>T</sup>x</i>
+&lt;= <i>d<sub>i</sub></i> is true when the continuous state <i>x</i> of
+the hybrid system lies in the cell.</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><b><font color="#CC0000">pthflags</font></b></td>
+
+<td>an array of boolean flags, one for each PTHB in the list compiled earlier,
+indicating the output value of the corresponding PTHB when the continuous
+state of the hybrid system lies in the cell.</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><b><font color="#CC0000">neighbors</font></b></td>
+
+<td>indices to other neighboring cells. Note that for any two neighboring
+cells, their hpflags must be different by exactly one hyperplane.</td>
+</tr>
+</table></center>
+
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>The reader is referred to the m-file <b><font color="#CC0000">partition_ss.m</font></b>
+in the directory <b><font color="#CC0000">~/frontend</font></b> for more
+information on the analysis region partitioning.</td>
+</tr>
+</table></center>
+
+<h3>
+<a NAME="FSM_info"></a><font color="#000099">4.4 Compiling the Information
+on FSMBs</font></h3>
+By tracing the Simulink block diagram, CheckMate computes the strings containing
+the expressions for all event and data signals for all FSMBs in terms of
+the outputs of the all PTHBs and FSMBs. For example, consider the partial
+Simulink diagram shown below
+<p>
+<center><img SRC="cmsample.gif" height=393 width=514></center>
+with the event and data signals for each Stateflow (FSM) block listed in
+the following table.
+<br>&nbsp;
+<center><table BORDER CELLSPACING=0 CELLPADDING=0 COLS=3 WIDTH="60%" >
+<tr BGCOLOR="#FFFFCC">
+<td>
+<center><b>Block</b></center>
+</td>
+
+<td>
+<center><b>Events</b></center>
+</td>
+
+<td>
+<center><b>Data</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>fsm1</center>
+</td>
+
+<td>
+<center>v1 v2</center>
+</td>
+
+<td>
+<center>d1 d2</center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>fsm2</center>
+</td>
+
+<td>
+<center>v3</center>
+</td>
+
+<td>
+<center>d3 d4</center>
+</td>
+</tr>
+</table></center>
+
+<p>CheckMate will produce the following results for the expressions of
+all event and data signals. For the block <tt>fsm1</tt>,
+<blockquote><tt>v1 = 'pth1'</tt>
+<br><tt>v2 = 'pth2 | pth3'</tt>
+<br><tt>d1 = 'pth1'</tt>
+<br><tt>d2 = '2 ~= fsm2'</tt></blockquote>
+For the block <tt>fsm2</tt>,
+<blockquote><tt>v3 = 'pth3'</tt>
+<br><tt>d3 = 'fsm1'</tt>
+<br><tt>d4 = 'pth1'</tt></blockquote>
+Note that once the values are assigned to the variables with the same names
+as the PTHBs and FSMBs, the value of the event and data signals can be
+evaluated using the command <tt>eval</tt> in MATLAB (see MATLAB on-line
+help for more detail). This is indeed what CheckMate does to evaluate the
+event and data signals later on the PIHA conversion process. To evaluate
+whether changes in the event signals actually produces any event, CheckMate
+also maintains the information on the type of each event which could be
+<i>rising
+edge</i>, <i>falling edge</i>, and <i>either edge</i>.
+<p>The initial FSM states are the states which are the destination of the
+default transition in the Stateflow diagram for each FSMB. The current
+implementation of CheckMate allows only one default transition per Stateflow
+block, that is, the initial state for each FSMB is deterministic.
+<h3>
+<font color="#000099">4.5 Building PIHA Locations</font></h3>
+A location in our target PIHA is a pair (<i><font color="#CC0000">p</font></i>,<i><font color="#009900">q</font></i>)
+where <i><font color="#CC0000">p</font></i> is the <font color="#CC0000">index
+to a cell</font> in the analysis region partition obtained in <a href="content.htm#AR_partition">Section
+4.3</a> and <i><font color="#006600">q</font></i> is a <font color="#009900">vector
+of FSM states</font> in the order determined in <a href="content.htm#block_order">Section
+4.2</a>. In other words, a location in the PIHA keeps track the cell the
+continuous state of the hybrid system is currently residing in and current
+states of the FSMBs which determines the continuous dynamics.
+<h4>
+<font color="#000099">4.5.1 Initial Locations</font></h4>
+Locations from which the hybrid automaton may start are called the <i>initial
+locations</i>. In our target PIHA, these are locations with the cell that
+overlaps with the initial continuous set and the FSM state vector that
+corresponds to the initial states of the FSMBs in the Simulink diagram.
+Specifically, the initial locations are constructed from the cross product
+of the initial cells found in <a href="content.htm#AR_partition">Section
+4.3</a> and initial FSM state vector found in <a href="content.htm#FSM_info">Section
+4.4</a>.
+<h4>
+<font color="#000099">4.5.2 Location Transitions and Locations Construction</font></h4>
+Starting from the current set of locations, CheckMate finds new locations
+by exploring the location transitions out of the current locations. New
+locations are added until the fixed-point is reached, i.e. no new location
+is found. This iterative approach to constructing the PIHA locations is
+used to, although not always effective, avoid the explosion in the number
+of locations resulting from all possible combinations of cell and FSM state
+vector.
+<p>The location transitions in the PIHA are determined as follows. For
+each location (<i>p<sub>1</sub></i>,<i>q<sub>1</sub></i>), the cell <i>p<sub>1</sub></i>
+serves as the location <a href="content.htm#PIHA">invariant</a> (see Section
+2.2). The number of outgoing transitions from the location are the same
+as the number of hyperplanes on the boundary (faces) of <i>p<sub>1</sub></i>.
+To determine the destination of the transition for each hyperplane <i>h<sub>i</sub></i>,
+we first compute the event that can occur in the FSMBs when the continuous
+trajectory leaves the cell <i>p<sub>1</sub></i> through the hyperplane
+<i>h<sub>i</sub></i>.
+Recall that each cell in the analysis region partition uniquely determines
+the output of all PTHBs when the continuous trajectory resides in that
+cell. Thus, all event signals can be computed by comparing the values of
+PTHB outputs in the cells before and after crossing the hyperplane <i>h<sub>i</sub></i>.
+There are three possible cases as illustrated in the figure shown below.
+<center><img SRC="loctran.gif" NOSAVE height=527 width=395>
+<br><b><font color="#CC0000">Determining Location Transitions</font></b></center>
+
+<ul>
+<li>
+<b>Regular Location Transitions</b>. This is the case where the continuous
+trajectory remains inside the analysis region after crossing the hyperplane
+and the event corresponding to the crossing of the hyperplane does not
+cause the FSMs to transition into a <i>terminal state</i> (to be discussed
+shortly). In this case, the destination locations are simply the location
+representing the pair of neighboring cell and the FSM state vector that
+results from the transition from <i>q<sub>1</sub></i> on the hyperplane
+event. The hyperplane
+<i>h<sub>1</sub></i> in the above figure illustrates
+this case. Note that since the FSMs can be non-deterministic, more than
+one destination locations are possible for each boundary hyperplane.</li>
+
+<li>
+<b>Out-of-bound Transitions</b>. This case, illustrated by the hyperplane
+<i>h<sub>2</sub></i>
+in the above figure, corresponds to the continuous trajectory leaving the
+analysis region after crossing the hyperplane. A transition to a special
+(empty) <i>out-of-bound</i> location is defined.</li>
+
+<li>
+<b>Terminal Location Transitions</b>. In this case, the hyperplane event
+causes the FSMs to transition into a <i>terminal state</i>, a state without
+any outgoing transition, as illustrated by the hyperplane <i>h<sub>3</sub></i>
+in the above figure. Since the FSM states will never change, it is no longer
+necessary to maintain the information on the continuous state. A transition
+to a special (empty) terminal location containing only the information
+about the final FSM state is defined. Since the FSMs can be non-deterministic,
+more than one destination terminal locations are possible for each boundary
+hyperplane.</li>
+
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>The <i>out-of-bound</i> and <i>terminal</i> locations are not explicitly
+represented in the location cell array in the m-file <b><font color="#CC0000">piha.m</font></b>.
+Rather, they are encoded on the transition for the hyperplane that leads
+to these special locations.</td>
+</tr>
+</table></center>
+</ul>
+
+<h3>
+<font color="#000099">4.6 Data Structure Summary</font></h3>
+The above PIHA conversion procedure in the m-file <b><font color="#CC0000">verify.m</font></b>
+produces a global variable called <b><font color="#CC0000">GLOBAL_PIHA</font></b>
+in the main work space. The document on the data structure of <b><font color="#CC0000">GLOBAL_PIHA</font></b>
+can be found in the file <b><font color="#CC0000">piha_structure.txt</font></b>
+located in the directory <b><font color="#CC0000">~/frontend/@piha</font></b>.
+The content of the piha_structure.txt is reproduced here for convenience.
+<p><tt>--------------------------------</tt>
+<br><tt>Data structure for a PIHA object</tt>
+<br><tt>--------------------------------</tt>
+<p><tt>A PIHA object, HA, obtained after the conversion from a C/E system
+consists of</tt>
+<br><tt>the following fields:</tt>
+<p><tt>&nbsp;&nbsp; HA.Hyperplanes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of threshold hyperplanes in the C/E system</tt>
+<br><tt>&nbsp;&nbsp; HA.NAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: Number of hyperplanes on analysis boundary</tt>
+<br><tt>&nbsp;&nbsp; HA.InitialContinuousSet : Set of initial continuous
+states</tt>
+<br><tt>&nbsp;&nbsp; HA.InitialDiscreteSet&nbsp;&nbsp; : Set of initial
+discrete states</tt>
+<br><tt>&nbsp;&nbsp; HA.Cells&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of cells in the continuous state space</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+partition</tt>
+<br><tt>&nbsp;&nbsp; HA.InitialCells&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of cells which overlaps with the initial</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+continuous set</tt>
+<br><tt>&nbsp;&nbsp; HA.Locations&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of hybrid automaton locations</tt>
+<br><tt>&nbsp;&nbsp; HA.InitialLocations&nbsp;&nbsp;&nbsp;&nbsp; : Indices
+to initial locations</tt>
+<br><tt>&nbsp;&nbsp; HA.SCSBlocks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of switch continuous system blocks in the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+C/E system</tt>
+<br><tt>&nbsp;&nbsp; HA.PTHBlocks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of polyhedral threshold blocks in the C/E</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+system</tt>
+<br><tt>&nbsp;&nbsp; HA.FSMBlocks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: List of finite state machine blocks in the C/E</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+system</tt>
+<p><tt>The data structure for each field is described below.</tt>
+<p><tt>(1) Hyperplanes</tt>
+<br><tt>---------------</tt>
+<p><tt>Threshold hyperplanes from all PTHBs and the analysis region AR
+are collected</tt>
+<br><tt>in this field. The field is a cell array of hyperplane structures,
+each with</tt>
+<br><tt>the following format</tt>
+<p><tt>&nbsp;&nbsp; Hyperplanes{i}.pthb&nbsp; : -1 if it belongs to analysis
+region AR, otherwise</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+it is the index to the parent PTHB in PTHBlocks</tt>
+<br><tt>&nbsp;&nbsp; Hyperplanes{i}.index : The hyperplane index within
+the parent PTHB</tt>
+<br><tt>&nbsp;&nbsp; Hyperplanes{i}.c&nbsp;&nbsp;&nbsp;&nbsp; : Vector
+and constant pair representing the hyperplane</tt>
+<br><tt>&nbsp;&nbsp; Hyperplanes{i}.d&nbsp;&nbsp;&nbsp;&nbsp; : c*x = d</tt>
+<p><tt>(2) NAR</tt>
+<br><tt>-------</tt>
+<p><tt>This field is an integer indicating the number of hyperplanes on
+the analysis</tt>
+<br><tt>region boundary. The first NAR hyperplanes in the Hyperplanes list
+are the</tt>
+<br><tt>hyperplanes from the analysis region.</tt>
+<p><tt>(3) InitialContinuousSet</tt>
+<br><tt>------------------------</tt>
+<p><tt>A linearcon object with parameters CE,dE,CI, and dI representing
+the initial</tt>
+<br><tt>continuous set</tt>
+<p><tt>&nbsp;&nbsp; CE*x&nbsp; = dE</tt>
+<br><tt>&nbsp;&nbsp; CI*x &lt;= dI</tt>
+<p><tt>(4) InitialDiscreteSet</tt>
+<br><tt>----------------------</tt>
+<p><tt>A cell array of initial discrete states. Each initial discrete state
+(cell</tt>
+<br><tt>element) is a vector of state indices for FSMBlocks in the same
+order as in</tt>
+<br><tt>FSMBlocks list.</tt>
+<p><tt>(5) Cells</tt>
+<br><tt>---------</tt>
+<p><tt>A cell array of "cells" in the partition of the continuous state
+space. Each</tt>
+<br><tt>cell is a structure of the following format</tt>
+<p><tt>&nbsp;&nbsp; Cells{i}.boundary&nbsp; : A vector of indices to hyperplanes
+in Hyperplanes list</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+that comprises the boundary of the ith cell.</tt>
+<br><tt>&nbsp;&nbsp; Cells{i}.hpflags&nbsp;&nbsp; : A vector of the same
+length as the Hyperplanes list.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+hpflags(j) is a boolean flag indicating the side of</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the jth hyperplane in Hyperplanes list in which the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cell lies. Specifically,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+hpflags(j) = 1 --> c_j*x &lt;= d_j</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+hpflags(j) = 0 --> c_j*x >= d_j</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for any x in the ith cell.</tt>
+<br><tt>&nbsp;&nbsp; Cells{i}.pthflags&nbsp; : A vector of the same length
+as the PTHBlocks list.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pthflags(j) is a boolean flag indicating the output</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value of the jth PTHB in PTHBlocks list for any x</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+in the ith cell.</tt>
+<br><tt>&nbsp;&nbsp; Cells{i}.neighbors : A vector of indices to the neighboring
+cells.</tt>
+<p><tt>(6) InitialCells</tt>
+<br><tt>----------------</tt>
+<p><tt>A vector of indices to the continuous state space cells in the field
+Cells</tt>
+<br><tt>that overlaps with the initial continuous set.</tt>
+<br>&nbsp;
+<p><tt>(7) Locations</tt>
+<br><tt>-------------</tt>
+<p><tt>A cell array of locations, each with the following format</tt>
+<br><tt>&nbsp;&nbsp; LOCATIONS{i}.p&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: Index to a continuous cell in the field Cells</tt>
+<br><tt>&nbsp;&nbsp; LOCATIONS{i}.q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: A vector of discrete state numbers (same format</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+as each element of InitialDiscreteSet)</tt>
+<br><tt>&nbsp;&nbsp; LOCATIONS{i}.transitions : A cell array of location
+indices. transitions{j}</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+indicates the destination location(s) for the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+location transition taken when the continuous</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+trajectory exits through the jth hyperplane of</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+on the boundary of the cell p.</tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transitions{j} is a structure array with each</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elements containing 2 field 'type' and 'value'</tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+If crossing the jth hyperplanes means</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+leaving the analysis region, then</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transition{j} contains a single element with</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the following field values</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+type: 'out_of_bound'</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+destination: []</tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+If crossing the jth hyperplane may lead to</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+a "terminal" FSM state q' (a state for</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+which there is no transition out of any</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+of the component states), then</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transition{j} contains an element with the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+following field values</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+type: 'terminal'</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+destination: q'</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+where q' is a row FSM state vector</tt>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+For each regular location transition,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transition{j} contains an element with the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+following field values</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+type: 'regular'</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+destination: idx</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+where idx is the destination location index</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(a scalar)</tt>
+<br>&nbsp;
+<p><tt>(8) InitialLocations</tt>
+<br><tt>--------------------</tt>
+<p><tt>A vector of indices to the locations in the field Locations that
+are the</tt>
+<br><tt>initial locations.</tt>
+<p><tt>(9) SCSBlocks</tt>
+<br><tt>-------------</tt>
+<p><tt>A cell array of switched continuous system blocks, each with the
+following</tt>
+<br><tt>format</tt>
+<p><tt>&nbsp;&nbsp; SCSBlocks{i}.name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: Name of the ith SCSB</tt>
+<br><tt>&nbsp;&nbsp; SCSBlocks{i}.nx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: Number of continuous variables</tt>
+<br><tt>&nbsp;&nbsp; SCSBlocks{i}.nu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: Number of discrete inputs</tt>
+<br><tt>&nbsp;&nbsp; SCSBlocks{i}.swfunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+: Name of the switching function m-file</tt>
+<br><tt>&nbsp;&nbsp; SCSBlocks{i}.fsmbindices : A vector of indices to
+FSMBs in the FSMBlocks</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fields in the order that feeds into the input</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+of the block SCSBlock{i}.</tt>
+<p><tt>(10) PTHBlocks</tt>
+<br><tt>--------------</tt>
+<p><tt>A cell array of polyhedral threshold blocks, each with the following
+format</tt>
+<p><tt>&nbsp;&nbsp; PTHBlocks{i}.name : Name of the ith PTHB.</tt>
+<p><tt>Name of PTHBs will be used as atomic propositions for CTL verifications.</tt>
+<p><tt>(11) FSMBlocks</tt>
+<br><tt>--------------</tt>
+<p><tt>A cell array of finite state machine blocks, each with the following
+format</tt>
+<br><tt>&nbsp;&nbsp; FSMBlocks{i}.name&nbsp;&nbsp; : Name of the ith FSMB.</tt>
+<br><tt>&nbsp;&nbsp; FSMBlocks{i}.states : A cell array listing the discrete
+states in the ith</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+FSMB by name.</tt>
+<h2>
+<a NAME="QTS"></a><font color="#000099">5 Quotient Transition Systems</font></h2>
+<img SRC="QTS.gif" NOSAVE height=294 width=195 align=RIGHT>A <i>quotient
+transition system (QTS)</i> is a finite state transition system that is
+a conservative approximation of the hybrid system. A QTS is defined from
+a partition of the state space of the hybrid system with each state in
+the QTS corresponding to a member of the partition. In the QTS, a transition
+is defined from a state (a set) <i>P<sub>1</sub></i> to another state <i>P<sub>2</sub></i>
+if and only if there is a state <i>p<sub>2</sub></i> in <i>P<sub>2</sub></i>
+that is reachable from a state <i>p<sub>1</sub></i> in <i>P<sub>1</sub></i>
+in the original hybrid system. The figure on the right illustrates the
+QTS where T denotes the hybrid system which makes transitions between states
+according to its dynamics and T/P denotes the QTS of T defined from the
+partition P of the state space of T.
+<p>A QTS is a conservative approximation in the sense that for every trajectory
+in the original hybrid system, there is a trajectory in the QTS corresponding
+to the set of states that the trajectory in the hybrid system goes through.
+Thus, if we can verify that all trajectories in the QTS satisfy some property,
+we can conclude that all trajectories in the hybrid system also satisfy
+the same property.
+<p>CheckMate only pays attention to the behavior of the hybrid system at
+the switching instants. Thus, approximates the QTS for the hybrid system
+from the partition of the switching surfaces, which are the boundaries
+of the location invariants in the PIHA, and the set of continuous initial
+states. The reachability analysis used to define the transitions in the
+QTS is performed using the approximation method called the <a href="#flow_pipe">flow
+pipe approximations</a>, discussed in the next section. The heuristics
+for choosing the <a href="#init_partition">initial partition</a> is also
+discussed in a later section. The actual data structure for the quotient
+transition system, also called <i>approximating automaton</i>, is described
+in the m-file <b><font color="#CC0000">iauto_part.m</font></b> in the directory
+<b><font color="#CC0000">~/approximation</font></b>.
+<h2>
+<a NAME="flow_pipe"></a><font color="#000099">6 Flow Pipe Approximations</font></h2>
+To compute a QTS for a PIHA, it is necessary to compute the set of reachable
+states under the continuous dynamics for a given location of the PIHA.
+We consider the problem of computing the reachable sets under the three
+types of continuous dynamics discussed previously.
+<h3>
+<font color="#000099">6.1 <i>Clock</i> Dynamics</font></h3>
+For systems with simple continuous dynamics such as the linear hybrid automata,
+the reachable set can be computed easily. In a linear hybrid automaton,
+the continuous dynamics in any location is of the form&nbsp;<img SRC="lhaeqn.gif" NOSAVE height=18 width=54>
+where <i>F</i> is a constant polyhedron. In this case, the reachable set
+from any polyhedral initial set is also a polyhedron which can be obtained
+by projecting the initial set in all possible directions for the derivative
+as shown below. In CheckMate, the reachable seta for the <tt>'clock'</tt>
+continuous dynamics are also computed using this technique (see the m-file
+<b><font color="#CC0000">clk_reach.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation/flowpipe/clock</font></b>).
+<center><img SRC="LHA.gif" NOSAVE height=195 width=505></center>
+
+<h3>
+<font color="#000099">6.2 <i>Nonlinear</i> Dynamics</font></h3>
+The reachable sets for more general continuous dynamics can only be approximated.
+CheckMate uses the <i>flow pipe approximation</i> technique to approximate
+the reachable sets under ordinary differential equation&nbsp;<img SRC="nleqn2.gif" NOSAVE height=30 width=83>by
+a sequence of convex polyhedra. The method starts by dividing the reachable
+set into time segments and approximates each the reachable set for each
+segment by enclosing it in a bounded convex polyhedron, called a polytope,
+as shown in the figure below.
+<center><img SRC="fpidea.gif" NOSAVE height=243 width=558></center>
+Each reachable set segment S is approximated by the following steps:
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=2 WIDTH="90%" >
+<tr VALIGN=TOP>
+<td><img SRC="fpstep1.gif" NOSAVE height=281 width=317>
+<br>1.Choose the set of <i>enclosing</i> direction vectors.</td>
+
+<td><img SRC="fpstep2.gif" NOSAVE height=236 width=288>
+<br>2. Solve the optimization problem
+<center><img SRC="fpstep2opt.gif" height=56 width=182></center>
+to obtain the supporting hyperplane for each of the direction vector obtained
+in step 1. The intersection of all non-positive half-spaces of the supporting
+hyperplanes is the approximation to each reachable segment.</td>
+</tr>
+</table></center>
+
+<p>For the reachble set between time [<i>t<sub>k</sub></i>,<i>t<sub>k+</sub></i><sub>1</sub>],
+the optimization problem in step 2 can be posed as
+<center><img SRC="optprob.gif" NOSAVE height=131 width=264></center>
+where <i>x</i>(<i>t</i>,<i>x</i><sub>0</sub>) denotes the solution to the
+differential equation from the initial state <i>x</i><sub>0</sub> at time
+<i>t
+</i>and
+<i>X</i><sub>0</sub>
+denotes the set of initial states. CheckMate solves this optimization problem
+by using the optimization toolbox in MATAB and embedding the numerical
+simulation of ODEs inside the objective function computation (see the m-file
+<b><font color="#CC0000">seg_approx_ode.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation/flowpipe/nonlinear</font></b>).
+We note that since the optimization problem in non-convex in general, local
+optimization routines in MATLAB cannot guarantee the global optimum.
+<h3>
+<font color="#000099">6.3 <i>Linear</i> Dynamics</font></h3>
+For <tt>'linear'</tt> (affine) dynamics&nbsp;<img SRC="affeqn.gif" NOSAVE height=24 width=96>,
+the above optimization problem is solve a bit differently. We first observe
+that the reachable set at any time is an affine transformation of the initial
+set <i>X</i><sub>0</sub>
+<center><img SRC="X0xform.gif" NOSAVE height=48 width=319>.</center>
+We rewrite the optimization problem as
+<center><img SRC="optprob2.gif" NOSAVE height=54 width=294>.</center>
+Since <i>X</i><sub>0</sub> is a polyhedron <i>R<sub>t</sub></i>(<i>X</i><sub>0</sub>)
+is also a polyhedron and the inner optimization problem is a linear program.
+Note that we can at least guarantee the global optimum for the inner optimization
+problem in this case. See the m-file <b><font color="#CC0000">seg_approx_lin.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation/flowpipe/linear</font></b>
+for the implementation of the optimization for linear systems.
+<p>For linear systems, we do not have to solve the optimization problems
+for each time segment as we have the following result that the flow pipe
+segment can be obtained by transforming another segment with the same time
+step <font face="Symbol">D</font>t.
+<center><img SRC="segxform.gif" NOSAVE height=50 width=448></center>
+CheckMate only solves the optimization problems for the first reachable
+segment and then transforms it the get the subsequent segments in its computation
+of the reachable sets. An example of the flow pipe computations in CheckMate
+is shown below where the red rectangle is the initial set.
+<center><img SRC="fp_anim_opt.gif" NOSAVE height=300 width=400></center>
+The flow pipe approximation is used to define transitions in the quotient
+transition system for the PIHA as follows. A state in the quotient transition
+system is a triple (<font face="Symbol">p</font>,<i>p</i>,<i>q</i>) where
+<font face="Symbol">p</font>
+is a polytope in the location (<i>p</i>,<i>q</i>) of the PIHA. For each
+state in the quotient transition system, the flow pipe is computed for
+the associated polytope under the associated continuous dynamics. The mapping
+set, the set of states on the invariant boundary that can be reached from
+<font face="Symbol">p</font>
+is computed. A transitiion is then defined from (<font face="Symbol">p</font>,<i>p</i>,<i>q</i>)
+to any other state whose polytope overlaps with the mapping from <font face="Symbol">p</font>,
+as illustrated below. See the m-file <b><font color="#CC0000">compute_mapping.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation</font></b> for
+more information on the mapping set computation and the m-files<b> <font color="#CC0000">iauto_build.m</font></b>
+and <b><font color="#CC0000">rauto_tran.m</font></b> in the same directory
+for the computation of the transitions in the quotient transition system
+(called the <i>approximating automaton</i> in the code).
+<center><img SRC="AAtrans.gif" NOSAVE height=369 width=352></center>
+
+<h2>
+<a NAME="init_partition"></a><font color="#000099">7. Initial Partition</font></h2>
+The faces of the invariant for each location <i>q</i> of the PIHA are partitioned
+using the following heuristics. The heuristics is based on the direction
+and variation of the continuous vector field on each face and the size
+of the polytope on each face. The basic idea is to partition each face
+of the invariant recursively until each polytope in the partition satisfies
+the following criteria:
+<ul>
+<li>
+All vector field on each polytope either goes in or out of the invariant
+(up to some tolerance).</li>
+
+<li>
+The vector field variation on each polytope w.r.t. to the normal vector
+<i>c</i>
+of the parent invariant face is adequately small.</li>
+
+<li>
+The size of each polytope is adequately small.</li>
+</ul>
+The first two criteria are intended to group continuous states with similar
+qualitative behavior together. The third criterion is aimed at getting
+the QTS that is a good approximation of hybrid system model. The three
+criteria are implemented through the use of <i>tolerances</i> on the <i>vector
+field direction</i>, <i>vector field variation</i>, and the <i>size of
+polytope</i>, as depicted below.
+<center>
+<p><img SRC="parttol.gif" NOSAVE height=356 width=507></center>
+
+<p>The user specifies these tolerances in the parameter files that CheckMate
+references during the verification process (see <a href="../mechanics/ver_mechanics.htm" target="_top">Using
+CheckMate Verification Tool)</a>. The above heuristics for partitioning
+the invariant faces is implemented for each type of the continuous dynamics
+in the m-files <b><font color="#CC0000">clock_partition.m</font></b>, <b><font color="#CC0000">linear_partition.m</font></b>,
+and <b><font color="#CC0000">nonlinear_partition.m</font></b> in the directory
+<b><font color="#CC0000">~/approximation/partition</font></b>.
+<p>The heuristics for splitting a polytope in CheckMate follows the following
+general steps:
+<ol>
+<li>
+Choose a split direction <i>c</i>. For a polytope of dimension <i>n</i>-1,
+<i>c</i> is usually chosen to be orthogonal to the normal vector to the
+polytope. Particular criteria for choosing <i>c</i> can be found in the
+m-files mentioned above.</li>
+
+<li>
+Solve two linear program to find the supporting hyperplanes in the <i>c</i>
+direction which bound the polytope <i>P</i>, as shown in the figure below.</li>
+
+<li>
+Split the polytope P by the hyperplane that lies in the middle of the two
+supporting hyperplanes.</li>
+</ol>
+
+<center><img SRC="split.gif" NOSAVE height=250 width=436></center>
+
+<p><br>
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#FFD9DC" >
+<tr>
+<td><b><i><font color="#CC0000">Disclaimer:</font></i></b> The initial
+continuous set is partitioned using the same heuristics if it is of dimension
+<i>n</i>-1,
+i.e. same dimension as the invariant faces. Similar heuristics may be generalized
+to partition polytopes of other dimensions. However, this remains a future
+work. Currently, no partitioning is done for polytopes of dimensions other
+than n-1 in the m-file <b><font color="#CC0000">iauto_part.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation</font></b>.</td>
+</tr>
+</table></center>
+
+<p>After using the above heuristics, the invariant face partitions are
+partitioned further with the polytopes obtained from the reachability analysis
+from each initial continuous set. Roughly, this additional partitioning
+schemes proceeds as follows.
+<ul>
+<li>
+For each initial continuous set, a sequence of reachable polytopes is computed
+using the flow pipe approximations (see the m-file <b><font color="#CC0000">flow_reach.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation</font></b>).
+The maximum number of polytopes in the sequence is specified by the <i>depth</i>
+parameter to prevent the reachability analysis to continue indefinitely.</li>
+
+<li>
+Each reachable polytope, which must be on an invariant face in some location,
+is subtracted from and intersected with every polytope in the current partition
+of that invariant face.</li>
+
+<li>
+Each polytope in the current partition is split in to the polytope that
+overlaps with the reachable polytope and (possibly multiple) convex polytope(s)
+that comprise the set difference (see the m-file <b><font color="#CC0000">minus.m</font></b>
+in the directory <b><font color="#CC0000">~/polylib/@linearcon</font></b>
+for the implementation of set subtraction).</li>
+</ul>
+This step is done so that the paths (sequences of states) in the QTS reflects
+For further information, see the m-file <b><font color="#CC0000">iauto_part.m</font></b>
+in the directory <b><font color="#CC0000">~/approximation</font></b>.
+<h2>
+<a NAME="ACTL"></a><font color="#000099">8. ACTL Verification</font></h2>
+
+<h3>
+<font color="#000099">8.1 Computation Tree Logic</font></h3>
+This section briefly describes the formulation of the <i>computation tree
+logic (CTL)</i>&nbsp; and the subclass of CTL called ACTL, which CheckMate
+uses as the framework for specification and verification. Given a finite-state
+transition system, a set of boolean properties, called the <i>atomic propositions</i>,
+are attached to each state of the transition system. Unfolding the state
+transition graph from a given initial state, we obtain an infinite tree
+called the <i>computation tree</i>. The concept of a computation tree is
+illustrated below.
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=0 COLS=1 WIDTH="90%" >
+<tr>
+<td>
+<center><img SRC="ctree.gif" NOSAVE height=234 width=535></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 COLS=2 WIDTH="100%" >
+<tr>
+<td>
+<center><b><font color="#CC0000">Finite-State Transitiion System</font></b></center>
+</td>
+
+<td>
+<center><b><font color="#CC0000">Computation Tree</font></b></center>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table></center>
+Computation tree logic is a language that is used to specify the system
+evolution in terms of the truth values of the atomic propositions along
+the paths of the computation tree. A CTL formula consists of temporal operators
+and path quantifiers. Temporal operators specify the system evolution along
+a single path of the computation tree. There are four basic temporal operators,
+<b>X</b>,
+<b>F</b>,
+<b>G</b>,
+and <b>U</b>. The temporal operator <b>X
+</b>("next time") asserts that
+the property holds at the next state in the path. <b>F</b> ("in the future")
+asserts that a property holds at some state in the future (including the
+current state). <b>G</b> ("globally") asserts that a property holds globally,
+i.e. at every state along the path. The operator <b>U</b> ("until") invloves
+two properties. The assertion
+<i>f</i> <b>U</b> <i>g</i> requires that
+<i>g</i>
+holds at some state in the future (including the current state) and that
+<i>f</i>
+holds at every state along the path prior to the occurrence of
+<i>g</i>.
+Path quantifiers
+<b>A</b> and <b>E</b> specify whether the path assertion
+holds along all paths or some ("there exists") path in the computation
+tree, respectively. The following table summarizes the aforementioned CTL
+operators.
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=5 COLS=2 WIDTH="90%" >
+<tr>
+<td>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 COLS=1 WIDTH="100%" >
+<tr>
+<td BGCOLOR="#FFFFCC">
+<center><b>Path Quantifiers</b></center>
+</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 COLS=1 WIDTH="100%" >
+<tr>
+<td BGCOLOR="#EAFFEA">
+<center><b>Temporal Operators</b></center>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=5 COLS=2 WIDTH="100%" >
+<tr VALIGN=TOP>
+<td WIDTH="5%" BGCOLOR="#FFFFCC"><b>A</b>
+<br><b>E</b></td>
+
+<td>For all computation paths
+<br>For some compution paths</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=5 COLS=2 WIDTH="100%" >
+<tr VALIGN=TOP>
+<td WIDTH="5%" BGCOLOR="#EAFFEA"><b>F</b>
+<br><b>G</b>
+<br><b>X</b>
+<br><b>U</b></td>
+
+<td>In the future
+<br>Globally
+<br>Next time
+<br>Until</td>
+</tr>
+</table>
+</td>
+</tr>
+</table></center>
+Formally, the syntax of a CTL formula <i>f</i> is given by the grammar
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>
+<center><b><font color="#CC0000">CTL Grammar:&nbsp;&nbsp;</font></b><i>
+f</i>&nbsp; --> <i>ap,</i> ~<i>f,</i> <i>f</i> &amp; <i>f</i>, <i>f</i>
+| <i>f,</i> <b>AX</b> <i>f,</i> <b>AF</b> <i>f,</i> <b>AG</b> <i>f, </i><b>A
+</b><i>f</i><b>U</b><i>f</i>,
+<b>EX</b><i>f,</i><b>EF</b><i>f,</i><b>EG</b>
+<i>f,
+</i><b>E
+</b><i>f</i><b>U</b><i>f</i></center>
+</td>
+</tr>
+</table></center>
+
+<p>where <i>ap</i> denotes an atomic proposition and ~, &amp;, and | denote
+logical <i>not</i>, <i>and</i>, and, <i>or</i>, respectively. CheckMate
+only considers a subclass of CTL called ACTL which is given by the grammar
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>
+<center><b><font color="#CC0000">ACTL Grammar:&nbsp;&nbsp;</font></b><i>
+f</i>&nbsp; --> <i>ap,</i> ~<i>ap,</i> <i>f</i> &amp; <i>f</i>, <i>f</i>
+| <i>f,</i> <b>AX</b> <i>f,</i> <b>AF</b> <i>f,</i> <b>AG</b> <i>f, </i><b>A
+</b><i>f</i><b>U</b><i>f</i></center>
+</td>
+</tr>
+</table></center>
+
+<p>Note that only the <i>universal</i> path quantifier <b>A</b> is allowed
+in an ACTL formula. This is due to the fact that CheckMate uses the conservative
+approximations (the quotient transition systems) to verify properties of
+the hybrid system. One can conclude that the original hybrid system satisfies
+the specification from the conservative approximation only when a universal
+specification (a specification which requires that a certain property holds
+for all behaviors of the system) is used. We give a few examples of the
+ACTL expressions.
+<ul>
+<li>
+<b>AG</b> <i>safe</i>: system is safe along all paths</li>
+
+<li>
+<b>AG </b>(<b>AF</b> <i>reset</i>): system is reset infinitely often along
+every computation path</li>
+</ul>
+Given a CTL specification and a finite-state transition system, the verification
+problem, also called the <i>model checking</i> problem, is formulated as
+<br>&nbsp;
+<center><table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="90%" BGCOLOR="#E7FFE3" >
+<tr>
+<td>
+<center><b><font color="#CC0000">Model Cheking Problem:</font></b><font color="#000000">Find
+the set of states where the given CTL formula is true.</font></center>
+</td>
+</tr>
+</table></center>
+
+<p>The above problem can be solved by performing the reachability analysis
+on the finite-state transition graph using well-known graph search algorithms.
+The reader is referred to the m-files in the directory <b><font color="#CC0000">~/ACTL</font></b>
+for the implementation of the model checking algorithms in CheckMate.
+<h3>
+<font color="#000099">8.2 Atomic Propositions in CheckMate</font></h3>
+CheckMate allows the user to make assertions on the whereabouts of both
+the continuous and discrete states (<i>x</i>,<i>u</i>) of the Simulink
+model in their respective state spaces by specifying them as atomic propositions
+in an ACTL formula. There are two forms of atomic propositions in CheckMate,
+which are summarized in the following table.
+<br>&nbsp;
+<center><table BORDER CELLSPACING=0 CELLPADDING=10 WIDTH="90%" >
+<tr BGCOLOR="#FFFFCC">
+<td>
+<center><b>Syntax</b></center>
+</td>
+
+<td>
+<center><b>Description</b></center>
+</td>
+
+<td>
+<center><b>Truth Value</b></center>
+</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td>
+<center><i>PTHB</i></center>
+</td>
+
+<td><i>PTHB</i> is the name of a PTHB in the Simulink diagram.</td>
+
+<td WIDTH="40%">True iff the output of the block <i>PTHB</i> is 1 for the
+given continuous state <i>x </i>of the Simulink model.</td>
+</tr>
+
+<tr VALIGN=TOP>
+<td WIDTH="20%">
+<center><i>FSMB</i> == <i>state</i></center>
+</td>
+
+<td WIDTH="40%"><i>FSMB</i> is the name of an FSMB in the Simulink diagram
+and <i>state</i> is the name of a state in the Stateflow diagram for the
+block <i>FSMB.</i></td>
+
+<td>True iff <i>state</i> is the active state of the block <i>FSMB</i>
+for the given discrete state <i>u</i> of the Simulink model.</td>
+</tr>
+</table></center>
+
+<h2>
+<a NAME="refinement"></a><font color="#000099">9.0 Partition Refinement</font></h2>
+If the verification on the current quotient transition system fails due
+to the coarseness of the discretization, the user has an option to refine
+the partition, construct the next QTS, and attempt the verification again.
+To slow down the state explosion resulting from the refinement, CheckMate
+only refine states which satisfies one of the following criteria:
+<ul>
+<li>
+States with more than one successor state.</li>
+
+<li>
+Initial states that do not statisfy the ACTL specification and all descendants.</li>
+</ul>
+The above criteria are motivated by the following reasonings. For the first
+criterion, there is no need to refine a state if it only has one behavior,
+always going to a single destination state, since no new information is
+gained by doing so. For the second criterion, recall that the ACTL specification
+is universal. Thus, all behaviors from the initial states that satisfy
+the specification are the QTS is guaranteed to satisfy the specification
+in the hybrid system. Thus, the verification result cannot be improved
+by refining these initial states and their descendants.
+<p>The following refinement scheme is used in CheckMate for each state
+that is to be refined:
+<ul>
+<li>
+Compute the set of <i>source</i> states, i.e. the set of states that can
+transition into the current state.</li>
+
+<li>
+Overapproximate the <i>mapping</i> set for each source state that lies
+on the same invariant face as the polytope for current state by a hyperrectangle.
+(This is done to reduce the number of polytopes that we have to process
+while maintaining conservativeness of the approximation).</li>
+
+<li>
+Subtract and intersect each hyperrectangle with the polytope associated
+with the current state. This separates the polytope for the current state
+into that part that <i>may be reached</i> and the part that is <i>definitely
+unreachable</i> from each source state.</li>
+</ul>
+The above refinement scheme is designed to separate the polytope for each
+state into the parts that can be reached from different combinations of
+the source states. It is implemented in the function <b><font color="#CC0000">refine_face_state()</font></b>
+in the m-file <b><font color="#CC0000">refine_auto.m</font></b> in the
+directory <b><font color="#CC0000">~/approximation</font></b>.
+</body>
+</html>

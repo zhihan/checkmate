@@ -1,0 +1,328 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+</head>
+<body>
+&nbsp;
+<table BORDER=0 CELLSPACING=0 CELLPADDING=10 COLS=1 WIDTH="100%" BACKGROUND="../hback.jpg" NOSAVE >
+<tr>
+<td>
+<center><b><font size=+4>G</font><font size=+2>LOBAL </font><font size=+4>V</font><font size=+2>ARIABLES</font></b></center>
+</td>
+</tr>
+</table>
+
+<p><b><i><font size=+2>CheckMate</font></i></b><font size=+1> uses many
+global variables to track progress and data throughout the verification
+process.&nbsp; Below is an explanation of the purpose and structure of
+each variable.</font>
+<br>&nbsp;
+<center><table BORDER CELLSPACING=0 CELLPADDING=10 WIDTH="90%" >
+<tr ALIGN=CENTER VALIGN=CENTER BACKGROUND="../hback.jpg" NOSAVE>
+<td ALIGN=LEFT VALIGN=CENTER>
+<center><b><i><font size=+2>Variable Name</font></i></b></center>
+</td>
+
+<td>
+<center><b><i><font size=+2>Description</font></i></b></center>
+</td>
+
+<td>
+<center><b><i><font size=+2>Structure</font></i></b></center>
+</td>
+</tr>
+
+<tr ALIGN=LEFT VALIGN=TOP>
+<td ALIGN=CENTER VALIGN=CENTER>
+<center><b>GLOBAL_ITERATION</b></center>
+</td>
+
+<td ALIGN=LEFT VALIGN=CENTER>Stores the number of iterations in the verification
+process.&nbsp; At any point in the process, GLOBAL_ITERATION contains the
+number of the last completed iteration.</td>
+
+<td>double array</td>
+</tr>
+
+<tr ALIGN=LEFT VALIGN=TOP>
+<td ALIGN=CENTER VALIGN=CENTER>
+<center><b>GLOBAL_SYSTEM</b></center>
+</td>
+
+<td ALIGN=LEFT VALIGN=CENTER>Contains the name of the Simulink model representing
+the threshold event driven hybrid system (TEDHS).</td>
+
+<td>character array (string)</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><b>GLOBAL_APARAM</b></td>
+
+<td ALIGN=LEFT VALIGN=CENTER>Contains the name of a Matlab function file
+which returns a structure of approximation parameters as a function of
+the composite discrete state.</td>
+
+<td VALIGN=TOP>character array (string)
+<p><i>function should return a structure with the following fields:</i>
+<br>&nbsp;<b>.dir_tol</b> tolerance for patch "single-sided-ness"
+<br>&nbsp;<b>.var_tol</b> tolerance for patch vector field variation relative
+to the vector field variation on the parent invariant face.
+<br>&nbsp;<b>.size_tol</b> tolerance for patch size
+<br>&nbsp;<b>.W</b> (diagonal) weighting matrix
+<br>&nbsp;<b>.T </b>time step for flow pipe computation
+<br>&nbsp;<b>.max_time</b> time limit (sec) for mapping computation
+<br>&nbsp;<b>.eq_tol </b>equilibrium termination tolerance for mapping
+computation</td>
+</tr>
+
+<tr>
+<td>
+<center><b>GLOBAL_SPEC</b></center>
+</td>
+
+<td ALIGN=LEFT VALIGN=CENTER>Contains the ACTL specification to be verified</td>
+
+<td ALIGN=LEFT VALIGN=TOP>character array (string)</td>
+</tr>
+
+<tr>
+<td>
+<center><b>GLOBAL_PROGRESS</b></center>
+</td>
+
+<td ALIGN=LEFT VALIGN=CENTER>Contains the current verification step</td>
+
+<td VALIGN=TOP>structure array
+<p><i>with field:</i>
+<br>&nbsp;<b>.step </b>current step of process</td>
+</tr>
+
+<tr>
+<td>
+<center><b>GLOBAL_PIHA</b></center>
+</td>
+
+<td>Polyhedral Invariant Hybrid Automata (PIHA) model converted from Simulink
+system specified in GLOBAL_SYSTEM</td>
+
+<td ALIGN=LEFT VALIGN=TOP>structure array
+<p><i>with fields:</i>
+<br>&nbsp;<b>.Hyperplanes </b>List of threshold hyperplanes in the C/E
+system
+<br>&nbsp;<b>.NAR </b>Number of hyperplanes on analysis boundary
+<br>&nbsp;<b>.InitialContinuousSet</b> Set of initial continuous states
+<br>&nbsp;<b>.InitialDiscreteSet</b> Set of initial discrete states
+<br>&nbsp;<b>.Cells</b> List of cells in the continuous state space&nbsp;
+<br>partition
+<br>&nbsp;<b>.InitialCells</b> List of cells which overlaps with the initial
+continuous set
+<br>&nbsp;<b>.Locations</b> List of hybrid automaton locations
+<br>&nbsp;<b>.InitialLocations</b> Indices to initial locations
+<br>&nbsp;<b>.SCSBlocks</b> List of switch continuous system blocks in
+the C/E system
+<br>&nbsp;<b>.PTHBlocks </b>List of polyhedral threshold blocks in the
+C/E system
+<br>&nbsp; <b>.FSMBlocks</b> List of finite state machine blocks in the
+C/E system</td>
+</tr>
+
+<tr VALIGN=CENTER>
+<td ALIGN=CENTER VALIGN=CENTER>&nbsp;<b>GLOBAL_AUTOMATON</b></td>
+
+<td ALIGN=LEFT VALIGN=CENTER>Contains the current approximating automaton</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array
+<p><i>Each cell is a structure with the fields:</i>
+<br>&nbsp;<b>.initstate</b> discretization of initial continuous set for
+each location
+<br>&nbsp;<b>.face{i}.state</b> discretization of <i>i</i>th invariant
+face for each location
+<p><i>Each state has the following components:</i>
+<br>&nbsp;<b>.polytope</b> Continuous set for this state.
+<br>&nbsp;<b>.mapping</b> Continuous mapping computed from polytope.
+<br>&nbsp;<b>.children</b> Destination states.
+<br>&nbsp;<b>.null_event </b>There exists trajectories that never trigger
+any further event from the polytope for this state.
+<br>&nbsp;<b>.time_limit</b> Mapping computation terminated by time limit
+so the mapping may not contain all states in mapping set.
+<br>&nbsp;<b>.out_of_bound</b> Part of the mapping computed goes out of
+analysis region.
+<br>&nbsp;<b>.indeterminate</b> Cannot determine further evolution of the
+system from this state. Reasons maybe that polytope for this state contains
+singularities so that mapping cannot be computed. This flag must be set
+by the user.&nbsp;
+<br>&nbsp;<b>.terminal</b> If there exists a trajectory from the polytope
+for this state that causes the FSM to switch to a terminal FSM state q',
+i.e the FSM state for which there is no outgoing transition from any of
+the component states, then the cell array .terminal contains q', otherwise
+it is empty.</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_TRANSITION</b></center>
+</td>
+
+<td>Generic transition system representing "flattened out" GLOBAL_AUTOMATON</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_REV_TRANSITION</b></center>
+</td>
+
+<td>Reverse transition system of GLOBAL_TRANSITION</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_AUTO2XSYS_MAP</b></center>
+</td>
+
+<td>State map from GLOBAL_AUTOMATON to GLOBAL_TRANSITION</td>
+
+<td ALIGN=LEFT VALIGN=TOP>structure array
+<p><i>with fields:</i>
+<br>&nbsp;<b>.init_state_map{l}{s}</b> Gives the index of the state in
+GLOBAL_TRANSITION corresponding to the initial state s in the location
+l in GLOBAL_AUTOMATON
+<br>&nbsp;<b>.init_state_range</b> Gives the range of states in GLOBAL_TRANSITION
+that correspond to states in the initial state partition in GLOBAL_AUTOMATON
+<br>&nbsp;<b>.face_state_map{l}{f}{s} </b>Gives the index of the state
+in GLOBAL_TRANSITION corresponding to state s on face f of invariant of
+location l in GLOBAL_AUTOMATON
+<br>&nbsp;<b>.face_state_range</b> Gives the range of states in GLOBAL_TRANSITION
+that correspond to states in the face state partition in GLOBAL_AUTOMATON
+<br>&nbsp;<b>.ne_start</b> Gives the starting index for "null_event" states
+in GLOBAL_TRANSITION&nbsp;
+<br>&nbsp;<b>.tl_start</b> Gives the starting index for "time limit" states
+in GLOBAL_TRANSITION
+<br>&nbsp;<b>.oob_start</b> Gives the starting index for "out-of-bound"
+states in GLOBAL_TRANSITION
+<br>&nbsp;<b>.ind_start</b> Gives the starting index for "indeterminate"
+states in GLOBAL_TRANSITION&nbsp;</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_XSYS2AUTO_MAP</b></center>
+</td>
+
+<td>State map from GLOBAL_TRANSITION to GLOBAL_AUTOMATON</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_SPEC_TREE</b></center>
+</td>
+
+<td>Parse tree for ACTL specification</td>
+
+<td>structure array
+<p><i>with fields:</i>
+<br><b>.symbol</b> Type name of terminal or variable symbols (string)
+<br><b>.production</b> Name of production that is used to obtain the symbol's value (next field).  Valid only for state formula symbols
+<br><b>.value</b> Cell array of symbol nodes comprising the current symbol value</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_AP_BUILD_LIST</b></center>
+</td>
+
+<td>Atomic proposition build list</td>
+
+<td>cell array
+<p><i>each cell is a structure with fields:</i>
+<br><b>.name</b> The name of the atomic proposition.  For a polyhedral threshold atomic proposition, this is the name of the corresponding PTHB.  For a finite state machine atomic proposition, the name is <code>&lt;FSMB&gt;_in_&lt;state&gt;</code>.
+<br><b>.build_info</b> Specifies the type of each atomic propositon.  For a PTHAP, this is <code>poly_ap</code>.  For an FSMAP, it is a cell array of the form <code>{'fsmap' &lt;FSMB&gt; &lt;state&gt;}</code>.</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_AP</b></center>
+</td>
+
+<td>Atomic propositions</td>
+
+<td>structure array
+<p><i>with fields:</i>
+<br><b>.ap</b> Contains the region object describing where the <i>ap</i> is true.  There is one field for each <i>ap</i> in GLOBAL_SPEC.</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_TBR</b></center>
+</td>
+
+<td>Set of states in GLOBAL_TRANSITION that are "to-be-refined"</td>
+
+<td ALIGN=LEFT VALIGN=TOP>region object</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_NEW_AUTOMATON</b></center>
+</td>
+
+<td>New approximating automaton obtained by refining GLOBAL_AUTOMATON</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array
+<p><i>Each cell is a structure with the fields:</i>
+<br>&nbsp;<b>.initstate</b> discretization of initial continuous set for
+each location
+<br>&nbsp;<b>.face{i}.state</b> discretization of ith invariant face for
+each location
+<p><i>Each state has the following components:</i>
+<br>&nbsp;<b>.polytope</b> Continuous set for this state.
+<br>&nbsp;<b>.mapping</b> Continuous mapping computed from polytope.
+<br>&nbsp;<b>.children</b> Destination states.
+<br>&nbsp;<b>.null_event </b>There exists trajectories that never trigger
+any further event from the polytope for this state.
+<br>&nbsp;<b>.time_limit</b> Mapping computation terminated by time limit
+so the mapping may not contain all states in mapping set.
+<br>&nbsp;<b>.out_of_bound</b> Part of the mapping computed goes out of
+analysis region.
+<br>&nbsp;<b>.indeterminate</b> Cannot determine further evolution of the
+system from this state. Reasons maybe that polytope for this state contains
+singularities so that mapping cannot be computed. This flag must be set
+by the user.&nbsp;
+<br>&nbsp;<b>.terminal</b> If there exists a trajectory from the polytope
+for this state that causes the FSM to switch to a terminal FSM state q',
+i.e the FSM state for which there is no outgoing transition from any of
+the component states, then the cell array .terminal contains q', otherwise
+it is empty.</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_RAUTO_REMAP_LIST</b></center>
+</td>
+
+<td>List of refined states in GLOBAL_NEW_AUTOMATON for which the mapping
+needs to be computed</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array</td>
+</tr>
+
+<tr>
+<td>
+<center>&nbsp;<b>GLOBAL_RAUTO_FACE_MAP</b></center>
+</td>
+
+<td>State map from face states in GLOBAL_AUTOMATON to face states in GLOBAL_NEW_AUTOMATON</td>
+
+<td ALIGN=LEFT VALIGN=TOP>cell array</td>
+</tr>
+</table></center>
+
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD html 4.0 transitional//EN">
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1">
+    <meta name="Author" content="Keith Richeson">
+    <meta name="GENERATOR" content=
+    "Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+
+    <title>The CheckMate Functions</title>
+  </head>
+
+  <body>
+    <a name="top"></a><b><font size="+2">The CheckMate Functions</font></b> 
+
+
+    <p><a name="introduction"></a><b><font size="+2">Introduction</font></b></p>
+
+	<p> Although CheckMate is useful as a fully automatic tool for verifying hybrid systems,
+	in practice it is sometimes difficult to make sure that a CheckMate model can be successfully 
+	verified. The reasons range from highly involved issues such as the computational complexity to 
+	extremely trivial uses of variable names. For example, if a SCSB block name has space in 
+	it, sometimes the explore code fails due to the fact that CheckMate is trying
+	to use a variable in the workspace with the same name. This violates the MATLAB rule
+          for naming variables in the workspacem, which results in a MATLAB error.
+          Since the developement
+	of CheckMate is essentially inactive, we describe in this page a few
+	useful (and very basic) functionalities of CheckMate, which can help the user to 
+	debug or use CheckMate as a toolbox instead of using it as a 
+	fully automatic verification tool. In other words, to use CheckMate without building
+          a CheckMate GUI model in Simulink.
+	</p>
+	
+	<p> The CheckMate code consists of five parts </p>
+	<ul>
+	<li> <strong>ACTL</strong>: A library to support A-CTL formulas and automatic model checking
+	of finite transition systems. </li>
+	<li> <strong>Polylib</strong>: A library to support basic operations on bounded closed polyhedra,
+	i.e., polytopes. </li>
+	<li> <strong>Front end</strong>: A set of Simulink blocks to support simulation 
+	 of CheckMate models in the Simulink environment.</li>
+	<li> <strong>Verification</strong>: A set of functions to perform a formal verification
+    of a CheckMate model.	</li>
+	<li> <strong>Exploration</strong>: A set of functions to perform an exploration. </li>
+	</ul>
+	
+	The ACTL and Polylib libraries are lower level functions. These functions can be invoked
+	alone from the MATLAB command line. The Front-End blocks and the Exploration and Verification 
+        functions are higher-level functions that can be used only with CheckMate models. 
+        It is difficult to use these
+	functionalities alone. These functionalities are beyond the scope of 
+        this documenation. 
+        However, the mid-level funcationalities for reachability analysis
+	can be used as stand-alone functions, which are also documented in this page. 
+
+        <p><a name="globals"></a><b><font size="+2">Global variables</font></b></p>
+        
+        <p> Global variables are used widely in the code of CheckMate. This is mostly
+          due to the fact that CheckMate was implemented initialliy in MATLAB 5.3, where
+          handle class is still not available. CheckMate uses global variables for two
+          purposes: first, as a global switch for algorithm settings, <em>e.g.</em>,
+          to switch between convex hull approximation and oriented rectangular hull
+          approximation; second, to save memory consumption without using references.
+        </p>
+        <p>
+          The global variables in CheckMate was added as the functionalities grows, and 
+          sometimes the parameter settings are confusing. However, for most of the core
+          functionalities the code base is relatively stable and only a few global variables
+          are needed. The following table lists the global variable needed by the libraries
+          described in this document. 
+	</p>
+
+        <table border="1"> <thead> <tr> <td> <b>Library</b></td> <td> <b>Global variable(s)</b> </td> </thead>
+          <tbody>
+            <tr><td>ACTL</td> <td>GLOBAL_TRANSITION, GLOBAL_AP, GLOBAL_REV_TRANSITION</td></tr>
+            <tr><td>Polylib</td><td>GLOBAL_APPROX_PARAM</td></tr>
+            <tr> <td>Reachability</td><td>GLOBAL_APPROX_PARAM</td></tr>
+          </tbody>
+         </table>
+
+        <p>The way to set these variables are described in more detail in the later sections.</p>
+
+	<p><a name="actl"></a><b><font size="+2">ACTL functions</font></b></p>
+	Computational-Tree Logic (CTL) is a temporal logic for formally specifying 
+	and verifying dynamic properties of finite state machines. A CTL formula has the following form </p>
+	
+	<ul>
+	<li> s = <b>A</b> p | <b>E</b> p | &lt;ap&gt; </li>
+    <li> p = <b>X</b> s | <b>G</b> s | <b>F</b> s|  s1 <b>U</b> s2 | s1 <b>R</b> s2</li>
+	</ul>
+	<p> where s is called a state formula (which specifies the property of a state) 
+	and p is called a path formula (which specifies the property of a path of execution) 
+	of the finite state mathine. The quantifiers are defined as follows: 
+	<ul>
+<li> Path quantifiers:
+<ul> 
+<li> <b>A</b> - always </li>
+<li> <b>E</b> - there exists </li>
+<li> ap - atomic proposition, a Boolean expression that can be evaluated at each state. </li>
+</ul>
+</li>
+<li> Temporal quantifiers:
+<ul> 
+<li> <b>X</b> - next </li>
+<li> <b>G</b> - globally </li>
+<li> <b>F</b> - in the future </li>
+<li> <b>U</b> - until </li>
+<li> <b>R</b> - release </li>
+</ul>
+</li>
+</ul>
+
+For example, <b>AG "safe"</b> specifies that the atomic proposition "safe" 
+is always globally true for a state <i>s</i>. 
+Meaning that starting from <i>s</i>, property "safe" is always true along every 
+path of execution. This property is usually also called the safety property
+of the system.
+As a second example example <b>AF "ready"</b> specifies that
+starting from the current state, every path will eventually 
+lead to a state where "ready" is true. 
+
+ Consult the books listed at the end of this section
+ for an extensive discussion on CTL and ACTL.
+ 
+<p><b><font size="+1">Finite Transition System</font></b></p>
+<p>In CheckMate, the finite transition system is modeled in the
+global variable GLOBAL_TRANSITION. The variable is a cell array in which each 
+element corresponds to an <em>out-going</em> transition of a state.
+The cell element is a vector consisting of the destination states of the out-going
+transitions. For example, consider the transition system shown in the following figure.</p>
+<center><img src="demo1.jpg"></img></center>
+
+The transition system has three states. State 1 has transitions to 2 and 3. State 2 to 3 and State 3 to 2.
+The transition system can be modeled in CheckMate using the following MATLAB code.
+<pre>
+>> <font color="#0000ff">global</font> GLOBAL_TRANSITION;
+>> GLOBAL_TRANSITION = {[2 3], 3, 2};
+</pre>
+
+<p><b><font size="+1">Region</font></b></p>
+Next we define a region object in CheckMate. A region object represents
+a subset of a finite set of states. For any property of the system, it is 
+represented in CheckMate as the set of states that satisfy the property.
+The following command constructs a set
+of all states of a three-state set. 
+
+<pre> 
+>> a = region(3, 'true');
+</pre>
+Variable <i>a</i> consists of all three states 1, 2, 3, which is the <em>universe</em> for the 
+3-state transition system.
+
+<pre> 
+>> b = region(3, 'false');
+</pre>
+Variable <i>b</i> consists of no states, which is the empty set. 
+
+<pre> 
+>> c = region(3, [1 2]);
+</pre>
+Variable <i>c</i> consists of states 1,2 out of a three-state set. 
+
+A region object can be viewed either as a subset or equivalently
+as a property. The region object supports basic set operations, 
+such as intersection (and), union (or), and compliment (not). Regions 
+for atomic properties must be constructed first. And then each ACTL formula
+is evaluated using the known APs by traversing the parse tree of the formula.
+ 
+<p><b><font size="+1">Model Checking</font></b></p>
+In CheckMate, it is necessary to first construct the atomic propositions
+of the formula of interests. Each atomic proposition in the ACTL formula must
+be put in the global variable GLOBAL_AP.  
+Besides the user-defined atomic propositions, it has to contain
+two trivial atomic propositions, "true" for all states in the system
+ and "false" for an empty set. The following code constructs the global 
+ atomic proposition for a three-state system: proposition <i>f</i> is true in states 2 and 3, and 
+ proposition <i>g</i> is true in state 2 only.
+ 
+ <pre>
+>> <font color="#0000FF">global</font> GLOBAL_AP
+>> GLOBAL_AP.true = region(3, 'true');
+>> GLOBAL_AP.false = region(3, 'false');
+>> GLOBAL_AP.f = region(3, [2 3]);
+>> GLOBAL_AP.g = region(3, 2);
+</pre>
+As a preprocess step, it is necessary to construct the reverse transition
+system. Because the model-checking algorithm needs to visit the finite
+transition system both in forward direction and in backward direction.
+This reverse transition
+system is used in the model checking algorithm together 
+with the original transition system. In CheckMate, the reverse transition
+system must be stored in the global variable GLOBAL_REV_TRANSITION. The following
+command constructs the reverse transition system for a given transition 
+system:
+<pre>
+>> <font color="#0000FF">global</font> GLOBAL_REV_TRANSITION
+>> GLOBAL_REV_TRANSITION = revtran(GLOBAL_TRANSITION);
+</pre>
+
+The model checking routine assumes that
+<ol> 
+<li>A transition system (GLOBAL_TRANSITION) and reverse transition system
+(GLOBAL_REV_TRANSITION) is available</li>
+<li>All the atomic propositions (GLOBAL_AP) in the 
+given ACTL formula are available</li>
+</ol>
+
+The model checking algorithm can be invoked via:
+<pre>
+>> a = model_check('AX AG f')
+</pre>
+<p>
+The return argument <i>a</i> is a region object containing the states
+where the forumula is true. The command model_check first parses the
+ACTL formula and then evaluates the ACTL formula by traversing 
+the parse tree of the specification, evaluating each node in a bottom-up manner. 
+A detailed reference for the implementation can be found in [<a href="#emc">2</a>].
+</p>
+<p>[1] M. R. A. Huth and M. D. Ryan, "Logic In Computer Science: Modeling and reasoning about systems", 
+Cambridge University Press, 2001. </p>
+<p><a name="emc"></a>[2] E. M. Clarke Jr, O. Grumberg and D. A. Peled, "Model Checking", The MIT Press, 2001. </p>
+
+<p><a name="polylib"></a>
+<b><font size="+2">Polylib: a library for polyhedra computation</font></b> </p>
+<p> CheckMate uses closed convex polyhedra to represent sets of 
+  continuous states. CheckMate uses bounded closed convex polyhedra, i.e.,
+  polytopes, to represent the reachable set in the continuous state space.
+  Conceptually a polytope can be represented either  as the intersection
+  of a number of closed halfspaces or as the convex hull of a finite set of points. Note that
+  an intersection of a finite set of closed halfspaces may not be a polytope, since
+  the set may be unbounded. On the other hand, the convex hull of a finite 
+  number of points may not be a full-dimensional polytope. For example, the convex hull
+  may be a line segment if all the points happen to be on the line segment. </p>
+<p>
+  <a name="poly_assumption">
+  <b><u>In most of the code CheckMate makes the assumption that the polytope is full-dimenstional.
+  In some code, CheckMate allows the polytope to be (n-1)-D, where n is the order
+  of the continuous state space. And the equality constraint must be explicitly 
+  specified. </u></b> To avoid 
+  confusion and facilitate the computation, the following three classes are implemented in CheckMate: </p>
+<ul>
+  <li><b>linearcon</b>: A linearcon object represents a closed linear constraint, i.e.,
+the intersection of a finite set of closed halfspaces. It may be simply a closed 
+halfspace, or a polytope. </li>
+
+<li><b>vertices</b>: A vertices object is a finite set of 
+points in the continuous state space. <em> Technically speaking, vertices are
+the extreme points of a polytope. But this is not always true for CheckMate vertices object.
+The vertices class in CheckMate is merely a set of points, which may include
+extremal points and interior points of a polytope.</em></li>
+
+<li><b>polyhedron</b>: A polyhedron object is a polytope. It can be constructed from either
+a linearcon object or a vertices object, if the set is indeed a full-dimensional polytope.
+If the set is not bounded or not full-dimensional, either some approximation is
+used, or some unexpected behavior can happen. These issues are discussed in more detail
+below.</li>
+</ul>
+
+<p><b><font size="+1">Conversion</font></b></p>
+<p>Each object for representing polytopes can be converted to another object 
+using the constructor function. </p>
+
+<p>linearcon and polyhedron are both used to represent polytopes. The conversion
+is just converting from one representation to the other representation of the
+set. One limitation is that when a linearcon is used to 
+represent open polyhedra, the result can be <b>unexpected</b>: Either an error or wrong result
+can be found. Because of the <a href="#poly_assumption">assumptions of CheckMate</a>. </p> 
+
+<p>Vertices objects are different from linearcon or polyhedron, because
+it is actually a finite set of points.
+When constructing a linearcon or polyhedron object from a vertices object, 
+a convex over-approximation of the set of points
+is computed. Depending on the underlying algorithm specified
+by the flag "hull_flag" of the gobal variable GLOBAL_APPROX_PARAM, 
+CheckMate may compute either a <em> 
+convex hull</em> or a <em>rectangular hull</em> of the set of point.</p>
+
+<p>The following example illustrates the differences between the convex hull and oriented 
+rectangular hull. Suppose we have three points (0,0), (0,1) and (1,0). The convex hull
+is the red triangle shown in the following figure and the rectangular hull is the blue 
+box. To generate the plot, use the following MATLAB commands. (For an extensive discussion
+of rectangular hull, see <a href="#ks_hscc03">[1]</a>. The convex hull algorithm of 
+CheckMate relies on the qhull built-in functions in MATLAB.) 
+</p>
+
+<p> <b>NOTE</b> The global variable GLOBAL_APPROX_PARAM is used in polylib, which
+should first be set to use the library.</p>
+
+<pre> 
+GLOBAL_APPROX_PARAM = parameters(0);
+<font color="#0000FF">global</font> GLOBAL_APPROX_PARAM
+a = vertices([0 0; 0 1; 1 0]')
+a1 = polyhedron(a)
+GLOBAL_APPROX_PARAM.hull_flag = 'convexhull';
+a2 = polyhedron(a);
+plot(a1);
+plot(a2, 'r');
+</pre>
+<center><img src="hull.jpg"> </img></center>
+
+<p>Converting a set to a vertices object will result in the set of vertices of
+the polytope. This is done by enumerating all the extremal points (vertices)
+of the polytope. CheckMate uses an implementation of CDD (<a href="#cdd">[3]</a>) 
+to enumerate all the vertices. The interior points of the polytope are
+not stored in the polytope. Hence conversion from vertices to polytheron and 
+then back to vertices will result in a different set of points than the original
+set. This operation is used extensively in CheckMate to
+reduce the complexity resulting from the growing number of vertices in the
+computation. </p>
+
+<pre>
+>> GLOBAL_APPROX_PARAM.hull_flag = 'convexhull';
+>> a = vertices([0 0; 0 1; 1 0; 0.5 0.5]')
+
+a: 
+v1 = [0.000000 0.000000 ]^T
+v2 = [0.000000 1.000000 ]^T
+v3 = [1.000000 0.000000 ]^T
+v4 = [0.500000 0.500000 ]^T
+
+>> b = vertices(polyhedron(a))
+
+b: 
+v1 = [0.000000 0.000000 ]^T
+v2 = [0.000000 1.000000 ]^T
+v3 = [1.000000 0.000000 ]^T
+</pre>
+
+<p><b><font size="+1">Computation with linearcon objects</font></b></p>
+<p>Although all three classes are implemented for set operations, 
+linearcon is the workhorse for set computation.  For continuous sets in 
+n-D space, CheckMate supports only sets in n-D or (n-1)-D polytopes. And the
+linear constraint must be given explicitly in the constructor. Implicit 
+linear constraints are silently "bloated", i.e., relaxed for a small amount, 
+so that the resulting polytope is full-dimensional.
+Polytopes with dimension less than n-1 is either considered as empty or over-approximated
+by an n-d polytope. Polyhedron and vertices
+are normally first converted to linearcon objects and then converted back
+after the set computations. The most commonly used operationss on 
+linearcon objects are: </p>
+<ul>
+<li> <b>and</b>: A & B is the intersection of the two polytope. </li>
+<li> <b>minus</b>: A - B is the set minus of A and B, i.e., the set of states that are
+in A but not in B.</li>
+<li> <b>transform</b>: transform(A, T,b) is to apply affine transformation
+T*x +b to the set A. </li>
+<li> <b>issubset</b>: issubset(a,b) determines if a is a subset of b. </li>
+<li> <b>isfeasible</b>: isfeasible(a,b) determines if a and b overlap or
+touch, i.e., the intersection of a and b is of dimension d-1 or higher, where
+d is the lower dimension of a and b. </li>
+<li> <b>project</b>: project(a, dim_list) project the polytope onto the dimensions
+specified by dim-list. 
+</ul> 
+
+<p><a name="ks_hscc03"></a> [1] B. H. Krogh and O. Stursberg, 
+On efficient representation and computation of reachable sets 
+for hybrid systems, in Hybrid Systems: Computation and Control (HSCC'03), 
+Lecture Notes in Computer Science (LNCS), Springer. </p>
+<p><a name="qhull"></a> [2] Qhull website: <a href="http://www.qhull.org">http://www.qhull.org</a> </p>
+<p><a><a name="cdd"><a> [3] CDD website: 
+<a href="http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html">
+http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html</a></p>
+</body>
+
+<p><a name="reachability"></a>
+<b><font size="+2">Reachability Analysis</font></b> </p>
+
+<p>Reachability analysis in CheckMate involves the computation of 
+continuous successors of a given location of a polyhedral invariant hybrid
+automaton (PIHA). Given a polyhedral invariant 
+(which can be unbounded), the continuous dynamics given in the form to use with the MATLAB
+ODE suite, and an initial set given as a full-dimensional polytope, CheckMate
+computes what can be informally called consinuous successor, i.e., <u><b>the intersection
+of the flow-pipe (from 0 to a given t_max) with the facets of the invariant</b></u>.</p>
+
+<p><b><font size="+1">A Limitation of CheckMate</font></b></p>
+<p>Note that in the above description, the continuous successor is merely an 
+over-approximation of the continuous part of actual reach set. Consider the
+situation illustrated in the following figure, the invariant I is the shaded
+area in the figure. And X0 is the set of initial states. 
+The continuous successor computed
+from CheckMate is illustrated as the bold line segment. Normally the reach
+set is the set of states can be reached <b>without</b> leaving the invariant.
+Consider one of the trajectories in the flow: the state first
+reaches the boundary of the invariant, where the hybrid automaton leaves the location.
+The trajectory after that (the red curve) 
+does not exist because the continuous dynamics is governed by the new
+location. Therefore the parts illustrated by the red curve do not belong to
+the actual reach set. One 
+may argue that this can be done by intersecting the reach set with
+the invariant and excluding the sets that has left the location, 
+or taking the vector field into the computation. 
+In CheckMate, these computations are not implemented to avoid the complexity
+of set computation (intersection of polytopes). In this example, 
+the actual reach set should
+only contain the lower half of the line segment (below the dashed trajectory),
+but CheckMate computes the whole line segment as an over-approximation.
+</p>
+<center> <img src="cmsucc.jpg"></img></center>
+
+<p> The reachability analysis algorithms have the form 
+<pre>
+ xxx_map( sys, X0, I, T, T_max )
+</pre>
+where sys gives the system dynamics, X0 is the initial state polytope,
+I is the polyhedral invariant set, T is the step size, and  T_max is the maximum
+analysis time. Depending on the dynamics of the location, CheckMate implments
+three different procedures to compute the continuous successors</p>
+
+<ul> 
+<li> Affine dynamics: fs_lin_map</li>
+<li> Nonlinear dynamics: fs_nonlin_map</li>
+<li> Clock dynamics: clk_map</li>
+</ul>
+The main difference between these algorithms are the input parameters for 
+the functions and the underlying algorithms. The input/output format for these
+functions are quite similar. The global variable
+GLOBAL_APPROX_PARAM has to be set to use these functions. 
+
+<p><b><font size="+1">Affine dynamics</font></b></p>
+<p> In affine dynamics, the system ODE is given as <pre> f(x) = A* x + b.</pre>
+The procedure fs_lin_map takes A and b as input arguments. 
+A sample code to use fs_lin_map is shown as the following
+</p>
+<pre>
+<font color="#00A020">%DEMO2 A 2-D reach set demo script </font>
+<font color="#0000FF">global</font> GLOBAL_APPROX_PARAM
+GLOBAL_APPROX_PARAM = parameters(1);
+GLOBAL_APPROX_PARAM.T = 1e-2; <font color="#00A020">% time step </font>
+
+<font color="#00A020">% Construct the invariant for x_1 < 1 </font>
+INV = linearcon([],[],[1 0],[1]); 
+
+A = [-1 1; 0 -1];
+b = [1 2]';
+X0 = linearcon([],[],[eye(2); -eye(2)],1e-2*[1;1;1;1]);
+<font color="#00A020">% Compute continuous successor for the system</font>
+[MAPPING,null_event,time_limit] = fs_lin_map(A,b,X0,INV)
+</pre>
+
+<p><b><font size="+1">Nonlinear dynamics</font></b></p>
+<p> In nonlinear dynamics, the system ODE is given as general nonlinear function 
+f(x). The procedure fs_nonlin_map takes the function handle
+to f(x) as one of the input arguments. Where function f(x)
+must be implemented in the format to use with the MATLAB ODE suite.
+An example of such file:
+</p>
+Content of the nonlinear dynamics m-file: 
+<pre>
+<font color="#00A020">% dblclk.m </font>
+<font color="#0000FF">function</font> dydt = dblclk(t,y, varargin)
+dydt = [1;2];
+</pre>
+Sample code to use fs_nonlin_map:
+<pre>
+<font color="#00A020">%DEMO2 A 2-D reach set demo script </font>
+<font color="#0000FF">global</font> GLOBAL_APPROX_PARAM
+GLOBAL_APPROX_PARAM = parameters(1);
+GLOBAL_APPROX_PARAM.T = 1e-2; <font color="#00A020">% time step </font>
+
+<font color="#00A020">% Construct the invariant for x_1 < 1 </font>
+INV = linearcon([],[],[1 0],[1]); 
+
+X0 = linearcon([],[],[eye(2); -eye(2)],1e-1*[1;1;1;1]);
+<font color="#00A020">% Compute continuous successor for the system</font>
+mapping = fs_nonlin_map(@dblclk,[],X0,INV,linearcon,0.1,2)
+</pre>
+
+<p><b><font size="+1">Clock dynamics</font></b></p>
+<p> In clock dynamics, the time derivative of each state 
+is given as constants, hence the name <em>clock</em>.
+The procedure clk_map takes the rates of the state variables
+as one of the input arguments. CheckMate assumes t_max is infinity
+for clock dynamics and no step size is used.
+Sample code to use clk_map:
+</p>
+<pre>
+<font color="#00A020">%DEMO2 A 2-D reach set demo script </font>
+<font color="#0000FF">global</font> GLOBAL_APPROX_PARAM
+GLOBAL_APPROX_PARAM = parameters(1);
+GLOBAL_APPROX_PARAM.T = 1e-2; <font color="#00A020">% time step </font>
+
+<font color="#00A020">% Construct the invariant for x_1 < 1 </font>
+INV = linearcon([],[],[1 0],[1]); 
+
+X0 = linearcon([],[],[eye(2); -eye(2)],1e-1*[1;1;1;1]);
+v = [1;2]; <font color="#00A020">%ratio of the clocks </font>
+<font color="#00A020">% Compute continuous successor for the system</font>
+mapping = clk_map(X0,v,INV);
+</pre>
+<center> <img src="clksucc.jpg"> </img></center>
+
+</html>
+

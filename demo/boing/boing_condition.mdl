@@ -1,0 +1,1033 @@
+Model {
+  Name			  "boing_condition"
+  Version		  5.0
+  SaveDefaultBlockParams  on
+  SampleTimeColors	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ExecutionOrder	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeVarName	  "covCumulativeData"
+  CovCumulativeReport	  off
+  DataTypeOverride	  "UseLocalSettings"
+  MinMaxOverflowLogging	  "UseLocalSettings"
+  MinMaxOverflowArchiveMode "Overwrite"
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  PreLoadFcn		  "setup_boing_condition"
+  Created		  "Fri Nov 09 10:07:30 2001"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "ansgar"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Wed Sep 24 15:22:27 2003"
+  ModelVersionFormat	  "1.%<AutoIncrement:166>"
+  ConfigurationManager	  "none"
+  SimParamPage		  "Solver"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  ExtModeMexFile	  "ext_comm"
+  ExtModeBatchMode	  off
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  BufferReuse		  on
+  RTWExpressionDepthLimit 5
+  SimulationMode	  "normal"
+  Solver		  "ode23t"
+  SolverMode		  "Auto"
+  StartTime		  "0.0"
+  StopTime		  "13.0"
+  MaxOrder		  5
+  MaxStep		  "auto"
+  MinStep		  "auto"
+  MaxNumMinSteps	  "-1"
+  InitialStep		  "auto"
+  FixedStep		  "auto"
+  RelTol		  "1e-3"
+  AbsTol		  "auto"
+  OutputOption		  "RefineOutputTimes"
+  OutputTimes		  "[]"
+  Refine		  "1"
+  LoadExternalInput	  off
+  ExternalInput		  "[t, u]"
+  LoadInitialState	  off
+  InitialState		  "xInitial"
+  SaveTime		  on
+  TimeSaveName		  "tout"
+  SaveState		  off
+  StateSaveName		  "xout"
+  SaveOutput		  on
+  OutputSaveName	  "yout"
+  SaveFinalState	  off
+  FinalStateName	  "xFinal"
+  SaveFormat		  "Array"
+  Decimation		  "1"
+  LimitDataPoints	  on
+  MaxDataPoints		  "1000"
+  SignalLoggingName	  "sigsOut"
+  ConsistencyChecking	  "none"
+  ArrayBoundsChecking	  "none"
+  AlgebraicLoopMsg	  "warning"
+  BlockPriorityViolationMsg "warning"
+  MinStepSizeMsg	  "warning"
+  InheritedTsInSrcMsg	  "warning"
+  DiscreteInheritContinuousMsg "warning"
+  MultiTaskRateTransMsg	  "error"
+  SingleTaskRateTransMsg  "none"
+  CheckForMatrixSingularity "none"
+  IntegerOverflowMsg	  "warning"
+  Int32ToFloatConvMsg	  "warning"
+  ParameterDowncastMsg	  "error"
+  ParameterOverflowMsg	  "error"
+  ParameterPrecisionLossMsg "warning"
+  UnderSpecifiedDataTypeMsg "none"
+  UnnecessaryDatatypeConvMsg "none"
+  VectorMatrixConversionMsg "none"
+  InvalidFcnCallConnMsg	  "error"
+  SignalLabelMismatchMsg  "none"
+  UnconnectedInputMsg	  "warning"
+  UnconnectedOutputMsg	  "warning"
+  UnconnectedLineMsg	  "warning"
+  SfunCompatibilityCheckMsg "none"
+  RTWInlineParameters	  off
+  BlockReductionOpt	  off
+  BooleanDataType	  off
+  ConditionallyExecuteInputs on
+  ParameterPooling	  on
+  OptimizeBlockIOStorage  on
+  ZeroCross		  on
+  AssertionControl	  "UseLocalSettings"
+  ProdHWDeviceType	  "Microprocessor"
+  ProdHWWordLengths	  "8,16,32,32"
+  RTWSystemTargetFile	  "grt.tlc"
+  RTWTemplateMakefile	  "grt_default_tmf"
+  RTWMakeCommand	  "make_rtw"
+  RTWGenerateCodeOnly	  off
+  RTWRetainRTWFile	  off
+  TLCProfiler		  off
+  TLCDebug		  off
+  TLCCoverage		  off
+  TLCAssertion		  off
+  BlockDefaults {
+    Orientation		    "right"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      ShowAdditionalParam     off
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "sfix(16)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "2^0"
+    }
+    Block {
+      BlockType		      DataTypeConversion
+      DataType		      "auto"
+      SaturateOnIntegerOverflow	on
+    }
+    Block {
+      BlockType		      Demux
+      Outputs		      "4"
+      DisplayOption	      "none"
+      BusSelectionMode	      off
+    }
+    Block {
+      BlockType		      Gain
+      Gain		      "1"
+      Multiplication	      "Element-wise(K.*u)"
+      ShowAdditionalParam     off
+      ParameterDataTypeMode   "Same as input"
+      ParameterDataType	      "sfix(16)"
+      ParameterScalingMode    "Best Precision: Matrix-wise"
+      ParameterScaling	      "2^0"
+      OutDataTypeMode	      "Same as input"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^0"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+    }
+    Block {
+      BlockType		      HitCross
+      HitCrossingOffset	      "0"
+      HitCrossingDirection    "either"
+      ShowOutputPort	      on
+      ZeroCross		      on
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      ShowAdditionalParam     off
+      LatchInput	      off
+      DataType		      "auto"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^0"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      Interpolate	      on
+    }
+    Block {
+      BlockType		      Logic
+      Operator		      "AND"
+      Inputs		      "2"
+      ShowAdditionalParam     off
+      AllPortsSameDT	      on
+      OutDataTypeMode	      "Logical (see Advanced Sim. Parameters)"
+      LogicDataType	      "uint(8)"
+    }
+    Block {
+      BlockType		      Mux
+      Inputs		      "4"
+      DisplayOption	      "none"
+    }
+    Block {
+      BlockType		      Outport
+      Port		      "1"
+      OutputWhenDisabled      "held"
+      InitialOutput	      "[]"
+    }
+    Block {
+      BlockType		      RelationalOperator
+      Operator		      ">="
+      ShowAdditionalParam     off
+      InputSameDT	      on
+      LogicOutDataTypeMode    "Logical (see Advanced Sim. Parameters)"
+      LogicDataType	      "uint(8)"
+      ZeroCross		      on
+    }
+    Block {
+      BlockType		      Scope
+      Floating		      off
+      ModelBased	      off
+      TickLabels	      "OneTimeTick"
+      ZoomMode		      "on"
+      Grid		      "on"
+      TimeRange		      "auto"
+      YMin		      "-5"
+      YMax		      "5"
+      SaveToWorkspace	      off
+      SaveName		      "ScopeData"
+      LimitDataPoints	      on
+      MaxDataPoints	      "5000"
+      Decimation	      "1"
+      SampleInput	      off
+      SampleTime	      "0"
+    }
+    Block {
+      BlockType		      Selector
+      InputType		      "Vector"
+      ElementSrc	      "Internal"
+      Elements		      "1"
+      RowSrc		      "Internal"
+      Rows		      "1"
+      ColumnSrc		      "Internal"
+      Columns		      "1"
+      InputPortWidth	      "-1"
+    }
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      PortCounts	      "[]"
+      SFunctionModules	      "''"
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      on
+      Permissions	      "ReadWrite"
+      RTWSystemCode	      "Auto"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+    Block {
+      BlockType		      Terminator
+    }
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  System {
+    Name		    "boing_condition"
+    Location		    [436, 150, 1049, 605]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      Demux
+      Name		      "Demux"
+      Ports		      [1, 2]
+      Position		      [245, 301, 250, 334]
+      BackgroundColor	      "black"
+      ShowName		      off
+      Outputs		      "2"
+    }
+    Block {
+      BlockType		      Logic
+      Name		      "Logical\nOperator"
+      Ports		      [2, 1]
+      Position		      [345, 79, 365, 201]
+      ShowName		      off
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope"
+      Ports		      [1]
+      Position		      [520, 99, 550, 131]
+      Location		      [34, 333, 358, 572]
+      Open		      off
+      NumInputPorts	      "1"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      List {
+	ListType		SelectedSignals
+	axes1			""
+      }
+      DataFormat	      "StructureWithTime"
+    }
+    Block {
+      BlockType		      Scope
+      Name		      "Scope1"
+      Ports		      [3]
+      Position		      [520, 189, 550, 221]
+      Location		      [72, 53, 396, 292]
+      Open		      off
+      NumInputPorts	      "3"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+	axes2			"%<SignalLabel>"
+	axes3			"%<SignalLabel>"
+      }
+      List {
+	ListType		SelectedSignals
+	axes1			""
+	axes2			""
+	axes3			""
+      }
+      YMin		      "-5~-5~-5"
+      YMax		      "5~5~5"
+      SaveName		      "ScopeData1"
+      DataFormat	      "StructureWithTime"
+    }
+    Block {
+      BlockType		      Selector
+      Name		      "Selector"
+      Ports		      [1, 1]
+      Position		      [190, 300, 215, 340]
+      BackgroundColor	      "orange"
+      ShowName		      off
+      Elements		      "[1 2]"
+      InputPortWidth	      "3"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "behavior"
+      Ports		      [2]
+      Position		      [275, 300, 310, 335]
+      BackgroundColor	      "orange"
+      NamePlacement	      "alternate"
+      SourceBlock	      "simulink/Sinks/XY Graph"
+      SourceType	      "XY scope."
+      xmin		      "0"
+      xmax		      "5"
+      ymin		      "0"
+      ymax		      "3"
+      st		      "-1"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "floor"
+      Ports		      [1, 1]
+      Position		      [245, 152, 300, 188]
+      BackgroundColor	      "green"
+      SourceBlock	      "cmlib/Polyhedral\nThreshold"
+      SourceType	      "PolyhedralThreshold"
+      polyhedron	      "floor"
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "fsm"
+      Ports		      [3, 2]
+      Position		      [495, 254, 555, 316]
+      BackgroundColor	      "yellow"
+      TreatAsAtomicUnit	      on
+      MaskType		      "Stateflow"
+      MaskDescription	      "Stateflow diagram"
+      MaskDisplay	      "plot(sf('Private','sfblk','xIcon'),sf('Private'"
+",'sfblk','yIcon'));text(0.5,0,sf('Private', 'sfblk', 'tIcon'),'HorizontalAl',"
+"'Center','VerticalAl','Bottom');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      off
+      MaskIconOpaque	      off
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      System {
+	Name			"fsm"
+	Location		[70, 200, 570, 460]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "end"
+	  Position		  [20, 101, 40, 119]
+	  PortDimensions	  "1"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "plop"
+	  Position		  [20, 136, 40, 154]
+	  Port			  "2"
+	  PortDimensions	  "1"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "boing"
+	  Position		  [20, 171, 40, 189]
+	  Port			  "3"
+	  PortDimensions	  "1"
+	}
+	Block {
+	  BlockType		  Demux
+	  Name			  " Demux "
+	  Ports			  [1, 1]
+	  Position		  [270, 205, 320, 245]
+	  Outputs		  "1"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  " SFunction "
+	  Tag			  "Stateflow S-Function boing_condition 1"
+	  Ports			  [3, 3]
+	  Position		  [180, 104, 230, 206]
+	  FunctionName		  "sf_sfun"
+	  PortCounts		  "[3 3]"
+	  Port {
+	    PortNumber		    2
+	    Name		    "q"
+	    TestPoint		    off
+	    LinearAnalysisOutput    off
+	    LinearAnalysisInput	    off
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    off
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData off
+	    DataLoggingDecimation   "2"
+	    DataLoggingLimitDataPoints off
+	    DataLoggingMaxPoints    "5000"
+	  }
+	  Port {
+	    PortNumber		    3
+	    Name		    "reset"
+	    TestPoint		    off
+	    LinearAnalysisOutput    off
+	    LinearAnalysisInput	    off
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    off
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData off
+	    DataLoggingDecimation   "2"
+	    DataLoggingLimitDataPoints off
+	    DataLoggingMaxPoints    "5000"
+	  }
+	}
+	Block {
+	  BlockType		  Terminator
+	  Name			  " Terminator "
+	  Position		  [460, 216, 480, 234]
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "q"
+	  Position		  [460, 101, 480, 119]
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "reset"
+	  Position		  [460, 136, 480, 154]
+	  Port			  "2"
+	}
+	Line {
+	  SrcBlock		  " SFunction "
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  DstBlock		  " Demux "
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  " Demux "
+	  SrcPort		  1
+	  DstBlock		  " Terminator "
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "end"
+	  SrcPort		  1
+	  DstBlock		  " SFunction "
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "plop"
+	  SrcPort		  1
+	  Points		  [120, 0]
+	  DstBlock		  " SFunction "
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "boing"
+	  SrcPort		  1
+	  DstBlock		  " SFunction "
+	  DstPort		  3
+	}
+	Line {
+	  Name			  "q"
+	  Labels		  [0, 0]
+	  SrcBlock		  " SFunction "
+	  SrcPort		  2
+	  DstBlock		  "q"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "reset"
+	  Labels		  [0, 0]
+	  SrcBlock		  " SFunction "
+	  SrcPort		  3
+	  DstBlock		  "reset"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "hole"
+      Ports		      [1, 1]
+      Position		      [245, 94, 300, 126]
+      BackgroundColor	      "green"
+      SourceBlock	      "cmlib/Polyhedral\nThreshold"
+      SourceType	      "PolyhedralThreshold"
+      polyhedron	      "hole"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "right_wall"
+      Ports		      [1, 1]
+      Position		      [245, 32, 305, 78]
+      BackgroundColor	      "green"
+      SourceBlock	      "cmlib/Polyhedral\nThreshold"
+      SourceType	      "PolyhedralThreshold"
+      polyhedron	      "right_wall"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "surface"
+      Ports		      [2, 1]
+      Position		      [75, 82, 135, 138]
+      BackgroundColor	      "lightBlue"
+      AncestorBlock	      "cmlib/Switched Continuous\nSystem"
+      SourceBlock	      "cmlib/Switched Continuous\nSystem"
+      SourceType	      "SwitchedContinuousSystem"
+      nx		      "3"
+      use_sd		      off
+      nup		      "[]"
+      nz		      "[]"
+      use_reset		      on
+      nu		      "1"
+      x0		      "[0;1+sqrt(2);0]"
+      swfunc		      "boingfunc"
+      ICS		      "boing_ICS"
+      AR		      "boing_AR"
+      use_param		      off
+      p0		      "[]"
+      PaCs		      "[]"
+      np		      "0"
+    }
+    Line {
+      SrcBlock		      "fsm"
+      SrcPort		      2
+      Points		      [0, 75; -500, 0]
+      DstBlock		      "surface"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "surface"
+      SrcPort		      1
+      Points		      [30, 0]
+      Branch {
+	DstBlock		"hole"
+	DstPort			1
+      }
+      Branch {
+	Points			[0, 60]
+	Branch {
+	  DstBlock		  "floor"
+	  DstPort		  1
+	}
+	Branch {
+	  Points		  [0, 150]
+	  DstBlock		  "Selector"
+	  DstPort		  1
+	}
+      }
+      Branch {
+	Points			[0, -55; 40, 0]
+	Branch {
+	  DstBlock		  "right_wall"
+	  DstPort		  1
+	}
+	Branch {
+	  Points		  [0, -45; 295, 0]
+	  DstBlock		  "Scope"
+	  DstPort		  1
+	}
+      }
+    }
+    Line {
+      SrcBlock		      "fsm"
+      SrcPort		      1
+      Points		      [15, 0; 0, 140; -545, 0; 0, -315]
+      DstBlock		      "surface"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "hole"
+      SrcPort		      1
+      DstBlock		      "Logical\nOperator"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "floor"
+      SrcPort		      1
+      Points		      [5, 0]
+      Branch {
+	DstBlock		"Logical\nOperator"
+	DstPort			2
+      }
+      Branch {
+	Points			[0, 45; 75, 0]
+	Branch {
+	  Points		  [0, 90]
+	  DstBlock		  "fsm"
+	  DstPort		  3
+	}
+	Branch {
+	  DstBlock		  "Scope1"
+	  DstPort		  3
+	}
+      }
+    }
+    Line {
+      SrcBlock		      "Logical\nOperator"
+      SrcPort		      1
+      Points		      [60, 0; 0, 65]
+      Branch {
+	Points			[0, 80]
+	DstBlock		"fsm"
+	DstPort			2
+      }
+      Branch {
+	DstBlock		"Scope1"
+	DstPort			2
+      }
+    }
+    Line {
+      SrcBlock		      "Selector"
+      SrcPort		      1
+      DstBlock		      "Demux"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux"
+      SrcPort		      1
+      DstBlock		      "behavior"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux"
+      SrcPort		      2
+      DstBlock		      "behavior"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "right_wall"
+      SrcPort		      1
+      Points		      [170, 0; 0, 140]
+      Branch {
+	DstBlock		"fsm"
+	DstPort			1
+      }
+      Branch {
+	DstBlock		"Scope1"
+	DstPort			1
+      }
+    }
+  }
+}
+
+# Finite State Machines
+# -- File save dated 24-Sep-2003 15:22:28
+#
+#    Stateflow Version 5.0 (R13) dated Jun 21 2002, 09:11:50
+#
+#
+
+Stateflow {
+
+	machine {
+		id                   		1
+		name                 		"boing_condition"
+		created              		"09-Nov-2001 10:43:16"
+		isLibrary            		0
+		firstTarget          		16
+		debug {
+			breakOn              		[1 1 1]
+		}
+		sfVersion            		50013001.000001
+	}
+
+	chart {
+		id                       		2
+		name                     		"fsm"
+		windowPosition           		[102.75 348.75 329.25 243.75]
+		viewLimits               		[167.488 423.234 0 185.936]
+		zoomFactor               		0.895
+		stateColor               		[0 1 1]
+		stateLabelColor          		[1 1 1]
+		transitionColor          		[1 1 0]
+		transitionLabelColor     		[1 1 0]
+		junctionColor            		[1 0 1]
+		selectionColor           		[0 1 0]
+		chartColor               		[0 0 0]
+		screen                   		[1 1 1152 864 1.333333333333333]
+		treeNode                 		[0 3 0 0]
+		firstTransition          		6
+		viewObj                  		2
+		machine                  		1
+		subviewS {
+		}
+		decomposition            		CLUSTER_CHART
+		firstEvent               		10
+		firstData                		11
+		chartFileNumber          		1
+		disableImplicitCasting   		1
+	}
+
+	state {
+		id                  		3
+		labelString         		"idle1\n"
+						"entry:q=1;"
+		position            		[251.208 44.481 55.74 70.251]
+		fontSize            		12
+		chart               		2
+		treeNode            		[2 0 0 4]
+		subviewer           		2
+		type                		OR_STATE
+		decomposition       		CLUSTER_STATE
+	}
+
+	state {
+		id                  		4
+		labelString         		"avoid\n"
+						"entry:q=2;"
+		position            		[174.696 119.216 57.875 44.625]
+		fontSize            		12
+		chart               		2
+		treeNode            		[2 0 3 5]
+		subviewer           		2
+		type                		OR_STATE
+		decomposition       		CLUSTER_STATE
+	}
+
+	state {
+		id                  		5
+		labelString         		"end\n"
+						"entry:q=3;"
+		position            		[356.823 122.228 57.875 44.625]
+		fontSize            		12
+		chart               		2
+		treeNode            		[2 0 4 0]
+		subviewer           		2
+		type                		OR_STATE
+		decomposition       		CLUSTER_STATE
+	}
+
+	transition {
+		id             		6
+		labelPosition  		[256.142 13.48 8.055 15.383]
+		fontSize       		12
+		src {
+			intersection		[0 0 0 0 233.6088 0.0004 0 0]
+		}
+		dst {
+			id          		3
+			intersection		[1 0 -1 0.2953 267.6679 44.481 0 0]
+		}
+		midPoint       		[254.5648 18.182]
+		chart          		2
+		linkNode       		[2 0 8]
+		dataLimits     		[233.609 270.068 0 44.481]
+		subviewer      		2
+	}
+
+	transition {
+		id             		7
+		labelString    		"[boing==1]/reset;"
+		labelPosition  		[251.825 134.811 92.632 15.383]
+		fontSize       		12
+		src {
+			id          		3
+			intersection		[2 1 0 0.7413 306.9476 96.5583 0 88.7478]
+		}
+		dst {
+			id          		3
+			intersection		[4 -1 0 0.1466 251.208 104.4335 0 37.1225]
+		}
+		midPoint       		[277.6174 130.7247]
+		chart          		2
+		linkNode       		[2 9 0]
+		dataLimits     		[240.74 310.18 96.558 130.775]
+		subviewer      		2
+		drawStyle      		SMART
+		slide {
+			sticky        		BOTH_STICK
+		}
+	}
+
+	transition {
+		id             		8
+		labelString    		"[plop==1]"
+		labelPosition  		[173.879 63.152 52.357 15.383]
+		fontSize       		12
+		src {
+			id          		3
+			intersection		[4 -1 0 0.5638 251.208 75.1246 0 0]
+		}
+		dst {
+			id          		4
+			intersection		[1 0 -1 0.3444 194.6302 119.2156 0 0]
+		}
+		midPoint       		[214.1006 84.5183]
+		chart          		2
+		linkNode       		[2 6 9]
+		dataLimits     		[192.23 251.208 75.125 119.216]
+		subviewer      		2
+	}
+
+	transition {
+		id             		9
+		labelString    		"[end==1]"
+		labelPosition  		[368.615 71.948 49.672 15.383]
+		fontSize       		12
+		src {
+			id          		3
+			intersection		[2 1 0 0.5546 306.9476 83.4443 0 -31.2881]
+		}
+		dst {
+			id          		5
+			intersection		[1 0 -1 0.5406 388.1111 122.228 0 31.2881]
+		}
+		midPoint       		[360.9093 88.1284]
+		chart          		2
+		linkNode       		[2 8 7]
+		dataLimits     		[306.948 390.511 82.735 122.228]
+		subviewer      		2
+		drawStyle      		SMART
+		slide {
+			sticky        		BOTH_STICK
+		}
+	}
+
+	event {
+		id         		10
+		name       		"reset"
+		linkNode   		[2 0 0]
+		scope      		OUTPUT_EVENT
+		trigger    		EITHER_EDGE_EVENT
+		machine    		1
+	}
+
+	data {
+		id               		11
+		name             		"q"
+		linkNode         		[2 0 12]
+		scope            		OUTPUT_DATA
+		machine          		1
+		dataType         		"double"
+		fixptType {
+			bias    		0
+			slope   		1
+			exponent		0
+			baseType		6
+		}
+		dlgFixptMode     		0
+		props {
+			range {
+				minimum		""
+				maximum		""
+			}
+		}
+	}
+
+	data {
+		id               		12
+		name             		"end"
+		linkNode         		[2 11 13]
+		scope            		INPUT_DATA
+		machine          		1
+		dataType         		"boolean"
+		fixptType {
+			bias    		0
+			slope   		1
+			exponent		0
+			baseType		6
+		}
+		dlgFixptMode     		0
+		props {
+			range {
+				minimum		""
+				maximum		""
+			}
+		}
+	}
+
+	data {
+		id               		13
+		name             		"plop"
+		linkNode         		[2 12 14]
+		scope            		INPUT_DATA
+		machine          		1
+		dataType         		"boolean"
+		fixptType {
+			bias    		0
+			slope   		1
+			exponent		0
+			baseType		6
+		}
+		dlgFixptMode     		0
+		props {
+			range {
+				minimum		""
+				maximum		""
+			}
+		}
+	}
+
+	data {
+		id               		14
+		name             		"boing"
+		linkNode         		[2 13 0]
+		scope            		INPUT_DATA
+		machine          		1
+		dataType         		"boolean"
+		fixptType {
+			bias    		0
+			slope   		1
+			exponent		0
+			baseType		6
+		}
+		dlgFixptMode     		0
+		props {
+			range {
+				minimum		""
+				maximum		""
+			}
+		}
+	}
+
+	instance {
+		id     		15
+		name   		"fsm"
+		machine		1
+		chart  		2
+	}
+
+	target {
+		id               		16
+		name             		"sfun"
+		description      		"Default Simulink S-Function Target."
+		codeFlags        		" debug=1 overflow=1 echo=1"
+		machine          		1
+		linkNode         		[1 0 0]
+	}
+}

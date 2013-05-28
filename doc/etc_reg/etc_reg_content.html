@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>ETC Regulation Problem</title>
+</head>
+<body>
+<a name="top"></a> 
+
+<h1>The ETC Regulation Control Problem</h1>
+
+This example demonstrates the application of CheckMate to verify
+properties of a hybrid system with ranges of values for the
+initial state and parameters in the system model. The
+requirements given for the <a href=
+"http://vehicle.me.berkeley.edu/mobies/powertrain/">MoBIES OEP
+page</a> can be shown to either
+hold or not hold by simulation studies for particular initial
+conditions and parameter values. For example, simulations of the
+CheckMate model of the ETC system in the demo example <a href="../etc5d/ETC5.htm"
+target="_parent">ETC5D</a> show that the transient response never
+violates the rise-time specifications, even for cases when the throttle 
+spring constant and equilibrim position deviate from their nominal
+values by 20%.
+
+<p>In this example we demonstrate verification of the requirement
+that the throttle angle should not exceed a 5% band around
+the steady state value of the reference signal after the transient
+phase of a step response. Simulations such as the one
+shown in Figure  1 demonstrate that this
+property is satisfied for a finite-time horizon for the nominal
+values of the system parameters. The objective here is to show that
+the specification is satisfied for a range of possible values for 
+the throttle spring constant and equilibrim position.  Our approach
+is to show that, starting from a range of initial states corresponding to the end of the 
+transient phase of the system step reponse, the sliding mode 
+defined in <a href="../etc5d/ETC5.htm" target="_parent">ETC5d
+demo</a> is reached.</p>
+
+<a name="etc5dsimulation"></a> 
+
+<center><img src="etc_reg_documentation_files/sim5d.JPG" alt=
+"sim5d"><br>
+ <b>Figure 1:</b> Simulation of the the model from the <a href=
+"../etc5d/ETC5.htm" target="_parent">ETC5D</a> demo, for a spring
+constant and spring equilibrium that are both 20% beyond
+nominal.</center>
+
+
+
+<a name="checkmatemodel"></a> 
+
+<h2>The CheckMate Model</h2>
+
+<p>The structure of this model is the same as the model
+described in the other <a href="../etc5d/ETC5.htm" target=
+"_parent">ETC demo</a>. Futher infomation may be found in this <a
+href="tryout.ppt">powerpoint presentation</a>.</p>
+
+<p>In this model, we assume that
+the reference signal has reached its steady state value, and can
+therefore omit the reference signal filter. Consequently, the CheckMate model has 
+only two state variables,
+the throttle angle &alpha; and the angular velocity &omega;.  The sliding surface, which is defined by
+<em>s=&lambda;(&alpha;-u<sub>f</sub>) + (&omega;-u'<sub>f</sub>
+)</em>, becomes <em>s=&lambda;(&alpha;-&alpha;<sub>des</sub>) +
+&omega;</em>. Similarly, other occurrences of the filter in the
+etc5d model are replaced. All other hyperplanes and thresholds in
+the higher dimensional ETC model were already expressed in
+&alpha; and &omega; only.</p>
+
+<p>Analyzing the system dynamics and the trajectories from the
+initial conditions, it is possible to identify a region where all
+the trajectories pass through. By enlarging this region we have a
+conservative approximation for the reachable region, starting at
+the initial set. The enlarged reached region is called <i>outer
+box</i>. The rationale is that the set should, for example, be
+reached by all trajectories from the initial after a step change
+to the desired angle. By using the <i>outer box</i> as the
+initial set for the verification procedure, one can focus on the
+behavior that is close to the region where the system can
+potentially violate the requirements (&alpha; &gt;
+1.05&alpha;<sub>des</sub>). Figure 2 shows the trajectories for
+the vertices of the initial set, for the full-dimensional case,
+where all of them cross the <i>outer box</i>. Figure 3 shows the
+crossing in detail.</p>
+
+<center><a name="step4"></a><img src=
+"etc_reg_documentation_files/etc_simulation1.JPG" alt=
+"simulation" width="600"><br>
+ <b>Figure 2.</b>Simulation of the the ETC model from the
+vertices of the initial condition set - 5D model.</center>
+
+<center><a name="step5"></a><img src=
+"etc_reg_documentation_files/etc_simulation2.JPG" alt=
+"simulation - ZOOM"><br>
+ <b>Figure 3.</b> Simulation of the the ETC model - zoom in the
+region of interest.</center>
+
+<p>Once the trajectories enter the region between the sliding
+surfaces, a region called <i>middle box</i>, it is necessary to
+show that all the trajectories starting in the <i>middle box</i>
+go to the steady state, without violating the requirements. This
+investigation can be done by verification or by observing that
+the vector field inside the <i>middle box</i> points towards the steady
+state region, which combined with the robustness of the sliding
+mode behavior is sufficient to guarantee that all trajectories
+go eventually to the steady state. The <i>middle box</i> region
+will be used as the termination criterion for the
+verification.</p>
+
+<p>In addition to the thresholds for the sliding surface and
+coulomb friction we define the <i>middle box</i> neighborhood as
+another region. The objective of this region is to show that if
+the system leaves a pre-defined initial condition set it will
+enter the <i>middle box</i></p>
+
+<p>We add to the file <code>setup2_reg.m</code> the definition of
+the <i>outer box</i> and <i>middle box</i>. They are defined as
+follows:</p>
+
+<pre>
+C_outer = [1 0;-1 0;0 1;0 -1];
+d_outer = [alpha_des*1.04;-alpha_des*1.003;-0.1;0.2]];
+assignin('base','etc_ICS',linearcon([],[],C_outer,d_outer));
+</pre>
+
+<pre>
+C_middle = [-60 -1];
+d_middle = -94.0883;
+assignin('base','middle',linearcon([],[],C_middle,d_middle));
+</pre>
+
+<p>Note that the <i>outer box</i> will be defined as the initial
+set. The <i>middle box</i> will be represented only by one face of the
+sliding surface, since the dynamics crosses this face first. The
+simplified <i>CheckMate</i> model will have only one SFM block,
+called <i>state</i>. In this model, the discrete states model the
+transitions for the coulomb friction (called left, neither and
+right) and there is a final state called reach, if the trajectory
+reaches the <i>middle box</i>. There is no need to specify an ACTL
+formula; CheckMate will generate the necessary property by
+itself. Recall from the other demo's that we name a location
+<code>reach</code> if each trajectory has to eventually reach the
+location. <a href="#fig2">Figure 4</a> shows the part that was
+included to verify the property.</p>
+
+<center><a name="fig2"></a> <img src=
+"etc_reg_documentation_files/checkmate_etc2d.JPG" alt="far"><BR>
+<img
+src="etc_reg_documentation_files/state_etc2d.JPG" alt="far"><br>
+ <b>Figure 4.</b> CheckMate model and the StateFlow diagram included for verification
+purposes.</center>
+
+<a name="verification"></a> 
+
+<h2>The Verification</h2>
+
+<p>Figure 5 shows the flowpipe segments that were
+computed during the verification. The red box is the initial set,
+the green box is the neighborhood of the sliding surface that has
+to be reached.</p>
+
+<center><img src="etc_reg_documentation_files/outer.jpg" alt=
+"far"><br>
+ <b>Figure 5.</b> Results of the verification for the ETC. The
+initial set is the red box on the right, the final set the green
+diagonal box.</center>
+
+<p>The verification shows that the state do always reach the
+sliding surface. While running the verification one might
+encounter the following warning:</p>
+
+<pre>
+Warning: Optimization did not improve the results of the convex hull approximation during reachability analysis.
+</pre>
+
+This warning tells the user that the optimization in <a href=
+"#step3">step 3</a> did not yield a better result than the convex
+hull approximation of the simulated points and vertices, for a
+particular face (<a href="#step2">step 2</a>). In this case the
+optimization was not able to improve the result. In all other
+cases, however, simulation did not provide a conservative
+approximation, and using optimization did improve the result. 
+
+<p>Finally, since the verification works out as planned, you
+might see the following output:</p>
+
+<pre>
+    Parsing specification 1: (AG ~out_of_bound)&amp;(AF state == reach)
+Compiling list of atomic propositions.
+ * out_of_bound
+ * state_in_reach
+
+Making refinement decision.
+
+System enters the state "reach" in all cases.
+
+total verification time is 194.92 seconds.
+&gt;&gt;
+</pre>
+
+We can therefore conclude that the system did not leave the
+analysis region, and that the system reaches the sliding surface
+in all cases.
+
+
+<a name="parametric"></a> 
+
+<h2>Background on Parametric Verification</h2>
+
+<p>CheckMate allows the user to specify uncertainty ranges on
+parameters for the continuous dynamics.  In this ETC demo we have
+selected the spring constant and the spring equilibrium as uncertain
+parameters. We assume that both may deviate with 20% from their
+nominal values. Both parameters have an influence on how the system
+behaves close to the steady state. </p>
+
+<p>Parameters are incorporated into the verification precedure
+during the computation of the flowpipe approximations. 
+The flowpipe approximation starts from an initial set of states (a polyhedron)
+in the continuous state space. As a first step, each vertex of the initial set
+is simulated up to a predefined time &Delta;t. In the parametric
+case, this simulation is performed for all vertices of the
+polyhedron that defines the set of possible parameter values, as well as for 
+the vertices of the initial state set. This is illustrated in the figure below, 
+where the polyhedron represents the initial set of states and the points
+represent the results of simulating the system for the vertices in both the
+state set and the parameter set.</p>
+
+<center><a name="step1"></a> <img src=
+"etc_reg_documentation_files/step1.JPG" alt="step1"></center>
+
+<p>The next step is to determine the convex hull of
+the simulation points and the vertices of the initial state set, as illustrated
+in the following figure. This step is mainly done to obtain the normals on the faces.
+These directions are used get an over-approximation of the
+reachable set. </p>
+
+<center><a name="step2"></a><img src=
+"etc_reg_documentation_files/step2.JPG" alt="step2"></center>
+
+<p>The third and last step, illustrated below, is to push the faces in
+the direction of its normal, such that the face will become a
+tangent plane of the reachable set. The flowpipe approximation
+uses an optimization routine to do so.</p>
+
+<center><a name="step3"></a><img src=
+"etc_reg_documentation_files/step3.JPG" alt="step3"></center>
+
+<p>The optimization, given a non-parametric system, is performed
+over all initial states and all times within the interval t and
+t+&Delta;t. To obtain the flowpipe for a parametric model one has
+to optimize over the parameter range, too. This means for the ETC
+example in this demo, that the optimization problems are
+5-dimensional, two dimensions for the states, two for the parameters 
+and one time dimension.</p>
+
+</body>
+</html>
+

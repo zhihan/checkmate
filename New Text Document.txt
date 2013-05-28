@@ -1,0 +1,17 @@
+ 	 The project website is
+http://www.ece.cmu.edu/~webk/checkmate/
+
+The authors of CheckMate are:
+
+Alongkrit Chutinan
+Ansgar Fehnker
+Zhi Han
+Jim Kapinski
+Rajesh Kumar
+Bruce H. Krogh
+Braz Izaias Silva Jr.
+Olaf Stursberg
+
+For documentation of CheckMate, please go to
+
+http://www.ece.cmu.edu/~webk/checkmate/download/download.htm 

@@ -1,0 +1,708 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+
+<HTML>
+  <HEAD>
+    <TITLE>Electronic Throttle Control</TITLE>
+  </HEAD>
+
+  <BODY LINK="#0000FF" VLINK="#800080">
+    <H1><A NAME="etcexample"></A>The Electronic Throttle Control
+    (ETC) Example</H1>
+    <A NAME="systemdescription"></A> 
+
+    <P ALIGN="justify"><STRONG>NOTE:</STRONG> The description of
+    this example assumes the reader is familiar with the elements
+    of CheckMate. Some of the simpler demonstrations provide an
+    introduction to CheckMate and the basic principles for
+    modeling hybrid systems using the CheckMate blockset.</P>
+
+    <H2>System description</H2>
+
+    <P ALIGN="JUSTIFY">The ETC problem is one of the challenge
+    problems in the DARPA Mobies project. The ETC challenge
+    problem considers the part of the power train control that
+    replaces the mechanical link between the pedal and the
+    throttle plate. As shown in Fig. 1, the throttle plate angle,
+    &alpha;, determines the airflow into the combustion chamber,
+    and thus controls thus the engine power. The task of the ETC
+    is to control the throttle angle, based on input from the
+    human driver.</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/image002.gif" ALT=
+      "image002" HEIGHT="362" WIDTH="737"><BR>
+       <STRONG>Figure 1.</STRONG> An automotive air-fuel mixture
+      control system.
+    </CENTER>
+
+    <P ALIGN="justify">UCB (Paul Griffiths) provided a
+    MATLAB/Simulink of the ETC. The system to be controlled
+    comprises a pulse-width modulation (PWM) driver, an actuator
+    (a DC motor), the mechanical system (the throttle and
+    spring), and sensors. Figure 2 shows how these subsystems
+    interact with the controller. The controller generates a
+    desired current, which is proportional to the desired torque
+    from the actuator. The PWM driver is designed to control the
+    output torque of the actuator to equal the desired torque.
+    The dynamics of the mechanical system are governed by the
+    throttle mass, the spring constant, friction due to airflow,
+    and the coulomb friction between the mechanical parts. The
+    sensor measures the angle of the throttle, which is fedback
+    to the controller.</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/image004.gif" ALT=
+      "image004" HEIGHT="278" WIDTH="576"><BR>
+       <STRONG>Figure 2.</STRONG> An automotive air-fuel mixture
+      control system.<BR>
+      <BR>
+    </CENTER>
+    <A NAME="systemrequirements"></A> 
+
+    <H2>System requirements</H2>
+
+    <P ALIGN="justify">According to the description on the <A
+    HREF=
+    "http://vehicle.me.berkeley.edu/mobies/powertrain/">MoBIES
+    OEP page</A>, there are several requirements regarding the
+    rise and fall time, the settle time, the steady state
+    tracking error and fault detection. In this demo consider to
+    the rise time requirement, defined as follows: </P>
+    <A NAME="rise"></A> 
+
+    <CENTER>
+      <TABLE BORDER="1" WIDTH="80%">
+        <TR>
+          <TD VALIGN="TOP">Rise Time is defined as the time
+          required for the throttle plate angle response to a
+          step change in pedal position to rise from 10% of the
+          steady state value to 90% of the steady state value. 
+          The rise time for step changes from closed to fully
+          open is 100ms; and the rise time for step changes from
+          WOT to closed is 60ms.</TD>
+        </TR>
+      </TABLE>
+    </CENTER>
+
+    <P ALIGN="justify">This requirement can be checked for any
+    given instance of the ETC controller by simulation. One just
+    starts at <EM>t</EM>=0 with a jump from zero to a wide open
+    throttle (WOT) and measures the rise time according to the
+    definition above. One might argue that there is little left
+    for verification. However, what simulation cannot cover are
+    situations in which the are uncertainties in the model, e.g.,
+    parameters for which only a possible range of values is
+    known. In this demo we will obtain a parametric model of the
+    ETC. Details on how to model the rise time requirement can be
+    found in the section on the CheckMate model.</P>
+    <A NAME="simulinkmodel"></A> 
+
+    <H2>Simulink model</H2>
+
+    <P ALIGN="justify">The Simulink model as distributed on the
+    <A HREF=
+    "http://vehicle.me.berkeley.edu/mobies/powertrain/">MoBIES
+    OEP page</A> has subsystems for the PWM driver, actuator,
+    mechanical system, sensors, and controller. The controller
+    has several levels of hierarchy, but its behavior is governed
+    by a Stateflow diagram, that switches between four normal
+    modes, two failure modes, and a startup mode. In all modes
+    except for human and cruise control mode, the controller
+    delivers a constant output that may depend on the mode. The
+    underlying controller in human and cruise control mode is a
+    sliding mode controller.</P>
+
+    <P ALIGN="justify">The sliding mode controller has as input
+    the actual angle and the desired angle, and as output the
+    desired output. The controller output (desired current) is
+    then the max of the output from the sliding mode controller,
+    and a constant. This constant is high if we are in cruise
+    control mode, and low otherwise. In addition to the Stateflow
+    model and the continuous behavior for each mode, the model
+    includes sampling of input and output, fault detection,
+    delays, and finally diagrams that interconnect all
+    components.</P>
+
+    <P ALIGN="justify">The model of the ETC defines a nonlinear
+    hybrid system, foremost, since the controller is both,
+    nonlinear and hybrid. We furthermore have the driver, which
+    produces a switched output, and plant model, that includes
+    coulomb friction.</P>
+    <A NAME="towardsmodel"></A> 
+
+    <H2>Towards a CheckMate model</H2>
+
+    <P ALIGN="justify">When building the CheckMate model we have
+    to keep in mind that we want to verify properties are that
+    concerned with the angle of the throttle plate. In this demo
+    we focus on how to derive a continuous-time model suitable
+    for verification. To minimize the amount of computation
+    required to explore and verify specifications for a system,
+    one must decide what to include into a model and how to
+    include it. This is not a CheckMate-specific problem, but is
+    general to modeling. Since verification is a
+    computationlly-expensive exercise, particular choices may
+    have a drastic effect. Nevertheless, most issues are similar
+    to problems one might encounter when building simulation
+    models. In this section we want to describe in more detail
+    how to obtain a CheckMate model for the ETC case study.</P>
+    <A NAME="mechanic"></A> 
+
+    <H3>Mechanical System</H3>
+
+    <P ALIGN="justify">The continuous behavior of the mechanical
+    system is governed by the differential equation:</P>
+
+    <CENTER>
+      <A NAME="eq2"><IMG SRC="etc_documentation_files/plant.gif"
+      ALT="image006"></A>
+    </CENTER>
+
+    <P ALIGN="justify">The angular velocity &omega; depends on
+    the Coulomb friction - <I>K<SUB>f</SUB> </I> sign(&omega;),
+    the viscous friction - <I>K<SUB>d</SUB> </I> w,  the force
+    from the spring - <I>K<SUB>d</SUB> 
+    (&alpha;-&alpha;<SUB>eq</SUB>)</I> and the input torque
+    <I>K<SUB>t</SUB> i<SUB>m</SUB></I> . Constant
+    &alpha;<SUB><I>eq</I></SUB> is the spring equilibrium. The
+    plant without Coulomb friction is a linear system with poles
+    -0.05 &plusmn;19.75 i. When we want to model this behavior,
+    we have to decide whether we want to include the Coulomb
+    friction as a non-linearity, or whether we want to include it
+    as different modes, with each of the modes governed by linear
+    dynamics.</P>
+    <A NAME="sensors"></A> 
+
+    <H3>The sensors</H3>
+
+    <P ALIGN="justify">The sensors are modeled as affine mapping
+    of the plant output. When the sensor signal enters the
+    controller, the inverse mapping is applied.  We omit sampling
+    of the output, which removes also a delay, and replace the
+    sensors by the identity.</P>
+    <A NAME="filter"></A> 
+
+    <H3>Filter</H3>
+
+    <P ALIGN="justify">The ETC uses a fifth order filter (poles
+    -80, -80, -90, -90, -100) to smooth the input from the human
+    driver. This means that the filter alone has more than twice
+    as many state variables as the system itself. Since
+    verification of hybrid systems suffers from each additional
+    dimension, we try to reduce the order of the filter. We
+    obtain a reduced filter using the model reduction
+    capabilities of MATLAB&#39;s system identification toolbox.
+    Figure 3 shows a comparison of the output of the fifth-order
+    and a second-order filter after a step input at time 0 from
+    zero degrees to 90 degrees.</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/f5thvs2nd.gif" ALT=
+      "second_order" HSPACE="25"><BR>
+       <STRONG>Figure 3.</STRONG> Comparison of the step
+      responses of fifth-order and second-order reference-signal
+      filters.
+    </CENTER>
+    <A NAME="sliding"></A> 
+
+    <H3>The sliding mode controller</H3>
+
+    <P ALIGN="justify">The sliding model controller applies on
+    the different sides of a sliding surface a control that will
+    drive the system to the sliding surface, as illustrated in
+    Fig. 4. The ETC uses as sliding surface
+    &lambda;(&alpha;-<I>u<SUB>f</SUB></I>) +
+    (&omega;-<I>u&#39;<SUB>f</SUB></I> ). The variables
+    <I>u<SUB>f</SUB></I>, <I>u&#39;<SUB>f</SUB></I> and
+    <I>u&#39;&#39;<SUB>f</SUB></I> are the output from the filter
+    and its first and second derivative. The sliding surface is
+    such that for a constant input the system will eventually
+    converge towards a state were the actual angel is equal to
+    the desired angle, and the angular velocity is zero. As soon
+    as the controller hits the sliding surface it will (ideally)
+    stay on it, and the behavior of the plant will be determined
+    by the equivalent behavior on the surface. In practice the
+    system will start chattering around the surface.</P>
+
+    <CENTER>
+      <A NAME="eq3"><IMG SRC=
+      "etc_documentation_files/image007.gif" ALT="image007"
+      HSPACE="50"></A><BR>
+       <STRONG>Figure 4.</STRONG> An illustration of a sliding
+      surface in sliding mode control.
+    </CENTER>
+
+    <P ALIGN="justify">The sliding mode controller has as input
+    the filtered input <I>u<SUB>f</SUB></I>, the first and second
+    derivative of <I>u<SUB>f</SUB></I>, the throttle position
+    &alpha;, and the angular velocity &omega;. The control that
+    is applied the different sides depends on the sign of
+    <I>s</I>=&lambda;(&alpha;-<I>u<SUB>f</SUB>) +
+    (</I>&omega;-<I>u&#39;<SUB>f</SUB></I> ). The output current
+    <I>i<SUB>m</SUB></I> of the sliding mode controller is
+    defined as:</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/sliding.GIF" ALT=
+      "image009"><BR>
+    </CENTER>
+
+    <P ALIGN="justify">As soon as the controller is close to the
+    surface it will start chattering, and effectively behave as
+    the equivalent controller. Variable-step integration routines
+    however will tend to get stuck on this sliding surface. To
+    resolve this problem, we will a technique that is also used
+    to mitigate the chattering of physical systems. We introduce
+    a boundary i.e. an &epsilon; neighborhood around <I>s=0</I>.
+    We apply the sliding mode controller <A HREF="#eq3">(3)</A>,
+    if |<EM>s</EM>|&ge;&epsilon;, and replace the
+    sign(<EM>s</EM>) by the <EM>s</EM>/&epsilon;, if
+    |<EM>s</EM>|&le;&epsilon;. The controller is thus equivalent
+    to the original controller outside the layer, and there is a
+    steep but continuous transition from one sliding mode to the
+    other. This third intermediate mode reduces the chattering
+    effectively, but has limited effect on the angle &alpha; as
+    illustrated in Fig. 5, where &epsilon; is chosen to be
+    0.05.</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/boundary.GIF" ALT=
+      "boundary"><BR>
+       <STRONG>Figure 5.</STRONG> Comparisons of the system
+      response with chattering on the sliding surface and a
+      boundary layer with equivalent control.
+    </CENTER>
+    <A NAME="actuator"></A> 
+
+    <H3>Driver and actuator</H3>
+
+    <P ALIGN="justify">The PWM driver controls the motor torque
+    to the desired torque. It has been observed that the driver
+    and actuator show saturation, i.e. if the desired current is
+    above a certain threshold, the actual torque will not
+    increase. Figure 6 shows a comparison of the behavior of the
+    orginal model, to what we obtain if we replace PWM and
+    actuator by a gain and a saturation block.  As can been seen
+    from this figure, the driver and actuator manage to realize
+    the desired torque fairly well. The PWM-interval is just
+    0.0025 seconds, and the poles of the actuator are -360.5 and
+    -1356.2. The PWM and the actuator react, therefore, much
+    faster than all the other components in the system.</P>
+
+    <P ALIGN="justify">A further simplification can be made by
+    omiting the current saturation from the model, in which case
+    the plant dynamics are linear, since all nonlinear terms
+    cancel each other. In this example, we retain the model of
+    current saturation.  </P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/PWM.GIF" ALT="PWM"
+      HSPACE="25"><BR>
+       <STRONG>Figure 6.</STRONG> A comparison of the system
+      response with and without the PWM driver dynamics.<BR>
+      <BR>
+    </CENTER>
+
+    <H2><A NAME="buildingtheCheckMatemodel"></A>Building the
+    CheckMate model</H2>
+
+    <P ALIGN="justify"><STRONG>NOTE:</STRONG> At this point, the
+    reader should open the CheckMate model for the ETC demo (file
+    <CODE>etc5d.mdl</CODE> in the folder
+    <CODE>~/demo/etc5d</CODE>).</P>
+
+    <P ALIGN="justify">The CheckMate model includes the complete
+    dynamics of the ETC described above, and also a model that
+    translates the rise time requirement into a reachability
+    question. This results in a model with five continuous state
+    variables (four state variables for the ETC dynamics and one
+    state varialbe - a clock - for the rise-time
+    specification).</P>
+    <A NAME="setup"></A> 
+
+    <H3>The user-defined m-files</H3>
+
+    <P ALIGN="justify">The ETC model uses <U>two</U> user-defined
+    m-files to define the system constants and parameters. The
+    file <CODE>etc_def.m</CODE> contains the all constants of the
+    ETC such as the motor resistance, spring constant, and
+    maximal motor current. In it we also defined the
+    ``thickness&#39;&#39; of the boundary layer
+    <CODE>layereps</CODE>, the sliding mode parameters
+    <CODE>layereps</CODE> and <CODE>n</CODE> and the matrices
+    that define the dynamics of the second-order reference-signal
+    filter. The structure <CODE>red_fil</CODE> contains the
+    matrices <EM>A<SUB>f</SUB>, B<SUB>f</SUB>, C<SUB>f</SUB>,
+    D<SUB>f</SUB></EM> that provide the state-space
+    representation of the reduced-order reference-signal
+    filter.</P>
+
+    <P ALIGN="justify">In order to define the sliding surface we
+    need to know the reference-signal filter output
+    <EM>u<SUB>f</SUB></EM> and its derivative. Since we are are
+    going to consider the rise time requirement, we may assume
+    that the actual human input <EM>u</EM> is constant after
+    <EM>t</EM>=0. We then have that the derivatives of <EM>u</EM>
+    are:<BR>
+     <IMG SRC="etc_documentation_files/filterderivative.GIF" ALT=
+    "filterderivative"><BR>
+     Let <CODE>x1</CODE> and <CODE>x2</CODE> be vectors that
+    select the first and second state variable of the filter from
+    the 4-dimensional state <CODE>x</CODE> of the complete
+    system.</P>
+
+    <P ALIGN="justify">We then define the following matrices:</P>
+<PRE>
+ufA=red_fil_c.C*[x1;x2];
+ufB=red_fil_c.D *alpha_des;
+ufdotA=red_fil_c.C*red_fil_c.A*[x1;x2];
+ufdotB=red_fil_c.C*red_fil_c.B*alpha_des;
+ufddotA=red_fil_c.C*red_fil_c.A*red_fil_c.A*[x1;x2];
+ufddotB=red_fil_c.C*red_fil_c.A*red_fil_c.B*alpha_des; 
+</PRE>
+    For a given state <CODE>x</CODE>, the filtered output is then
+    defined by <CODE>ufA*x+ufB</CODE>. The derivatives of
+    <EM>u<SUB>f</SUB></EM> are obtained similarly. <BR>
+     <BR>
+     The sliding surface is defined by the hyperplane
+    <CODE>surfA*x+surfB=0</CODE> with<BR>
+     
+<PRE>
+surfA=lambda*(alpha-ufA)+(omega-ufdotA);
+surfB=-lambda*ufB-ufdotB;
+</PRE>
+
+    <P ALIGN="justify">The second user-defined file is
+    <CODE>setup5d.m</CODE>. This file defines the thresholds of
+    the system, the analysis region, the initial set, and the
+    parameter constraints.</P>
+
+    <P ALIGN="justify">The boundary layer around the sliding
+    surface is defined by:</P>
+<PRE>
+assignin(&#39;base&#39;,&#39;above_surf&#39;,linearcon([],[],-surfA,surfB-layereps));
+assignin(&#39;base&#39;,&#39;below_surf&#39;,linearcon([],[],surfA,-surfB-layereps));
+</PRE>
+    A similar surface is defined for the Coulomb friction. In a
+    small neighborhood of &omega;=0 we assume that the friction
+    is zero (&omega; is the fourth state variable). We
+    distinguish between modes in which the throttle turns to the
+    right, to the left, or is not turning. We define two
+    hyperplanes that separte these modes: 
+<PRE>
+assignin(&#39;base&#39;,&#39;turn_left&#39;,linearcon([],[],[0 0 0 1],-layereps));
+assignin(&#39;base&#39;,&#39;turn_right&#39;,linearcon([],[],[0 0 0 -1],-layereps));
+</PRE>
+
+    <P ALIGN="justify">Next we define the 10% and 90% threshold
+    that we need to check the rise time requirement:</P>
+<PRE>
+assignin(&#39;base&#39;,&#39;alpha_geq90&#39;,linearcon([],[],[0 0 -1 0 ],[-0.9]*alpha_des));
+assignin(&#39;base&#39;,&#39;alpha_geq10&#39;,linearcon([],[],[0 0 -1 0 ],[-0.1]*alpha_des));
+</PRE>
+    A clock variable (an additional state) will be introduced to
+    measure the rise time. We have to define for this clock the
+    analysis region, the initial set, and a 100ms threshold: 
+<PRE>
+assignin(&#39;base&#39;,&#39;clock_AR&#39;,linearcon([],[],[1;-1],[150;1]));
+assignin(&#39;base&#39;,&#39;clock_ICS&#39;,{linearcon([],[],[1;-1],[0;0])});
+assignin(&#39;base&#39;,&#39;clock_geq100&#39;,linearcon([],[],[-1],[-0.1]));
+</PRE>
+
+    <P ALIGN="justify">The remainder of the file
+    <CODE>setup5d.m</CODE> defines the analysis region, the
+    initial set, and parameter constraints of the ETC. Finally we
+    set some global parameters of the system. To make the two
+    user files load automatically whenever we open
+    <CODE>setup5d.m</CODE>, we <CODE>edit etc5d.mdl</CODE> and
+    change the field <CODE>PreLoadFcn</CODE> accordingly.</P>
+    <A NAME="discrete"></A> 
+
+    <H3>The discrete part of the ETC model.</H3>
+
+    <P ALIGN="justify">The portion of the CheckMate model shown
+    in Fig. 7 represents the switching between different modes of
+    the sliding mode controller. We use the output of two
+    polyhedral threshold to determine whether the system is on or
+    off the sliding surface. The Stateflow diagram
+    <CODE>mode</CODE> is also shown in Fig. 7</P>
+
+    <P ALIGN="center"><IMG SRC=
+    "etc_documentation_files/slidingdia.GIF" ALT="slidingdia">
+    <IMG SRC="etc_documentation_files/modefsm.GIF" ALT=
+    "modefsm"><BR>
+     <STRONG>Figure 7.</STRONG> The discrete portion of the
+    CheckMate model of the ETC dynamics.</P>
+
+    <P ALIGN="justify">The Coulomb friction is modeled similarly.
+    A Simulink part that connects the polyhedral thresholds with
+    the finite state machine, and the Stateflow diagram of the
+    FSM are shown in Fig. 8.<BR>
+    </P>
+
+    <P ALIGN="center"><IMG SRC=
+    "etc_documentation_files/Coulombdia.GIF" ALT="Coulombdia"
+    VALIGN="middle"> <IMG SRC=
+    "etc_documentation_files/Coulombfsm.GIF" ALT="Coulombfsm"
+    VALIGN="middle"><BR>
+     <STRONG>Figure 8.</STRONG> The switching logic to model the
+    Coulomb friction in the CheckMate model of the ETC
+    dynamics.</P>
+    <A NAME="continuous"></A> 
+
+    <H3>The continuous part of the ETC model</H3>
+
+    <P ALIGN="justify">The ETC model uses one SCSB to model the
+    system&#39;s continuous dynamics. Figure 9 shows the
+    parameters defining this SCSB (as displayed by clicking on
+    the SCSB block in the CheckMate model).</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/scsb.JPG" ALT="scsb"><BR>
+       <B>Figure 9.</B> Parameters for the switched continuous
+      ETC dynamics.<BR>
+      <BR>
+    </CENTER>
+    The model of the ETC dynamics has no resets, but it is
+    parametric. For this demo we assume that the spring constant
+    <I>K<SUB>s</SUB></I> and the spring equilibrium
+    &alpha;<SUB><EM>eq</EM></SUB> have an uncertainty of 20%. The
+    SCSB has the following block parameters:<BR>
+     <BR>
+     The file <CODE>slidingmode</CODE> uses four state variables
+    to define the behavior, two for the filter, and two for the
+    plant dynamics.<BR>
+     <BR>
+     
+
+    <P ALIGN="justify">The SCSB has two discrete inputs, one for
+    the mode of the sliding mode controller, and one to model the
+    Coulomb friction. We assume for simulations that the system
+    starts in the origin.</P>
+
+    <P ALIGN="justify">In addition to the fields that define a
+    non-parametric CheckMate switched continuous system, we have
+    two additional fields: default parameter and parameter
+    constraint. The default parameter is [1.2,0.8], i.e. for this
+    example, that the spring constant <I>K<SUB>s</SUB></I> is 20%
+    above its nominal value, and the spring equilibrium
+    &alpha;<SUB><EM>eq</EM></SUB> is 20% below its nominal
+    value.</P>
+
+    <P ALIGN="justify">The parameter constraint is a linearcon
+    object and is defined in the setup file along with
+    constraints on the initial condition, and the analysis
+    region. Due to these parameters the system is non-linear. We
+    will thus include the saturation of the actuator as a
+    non-linearity, rather than modeling it as different
+    modes.</P>
+
+    <P ALIGN="justify">The file <CODE>slidingmode.m</CODE>
+    defines the continuous behavior depending on the input from
+    <CODE>mode</CODE> and . It uses four state variables, two for
+    the filter, the third one for &alpha; and the last one for
+    &omega;. The dynamics of the filter are defined by
+    <CODE>ufA*X+ufB*alpha_des</CODE>, given the state vector
+    <CODE>X</CODE>, and desired angle <CODE>alpha_des</CODE>. The
+    derivative of the the third element of <CODE>X</CODE> is
+    <CODE>omega</CODE>.</P>
+
+    <P ALIGN="justify">As shown below, the derivative of &omega;
+    depends on the mode of the controller and the direction of
+    the angular speed. The file <CODE>slidingmode.m</CODE>
+    computes the sign of &omega; and <EM>s</EM> from input from
+    the FSMs. Depending on whether the system is on the surface
+    (<CODE>signsurf==0</CODE>) we compute the part of the control
+    input that depends on the state (<CODE>iA</CODE>), and the
+    part that is constant (<CODE>iB</CODE>), separately.</P>
+
+    <TABLE BORDER="0">
+      <TR>
+        <TD>
+<PRE>
+switch signsurf
+case 0,
+    iA=1/Kt*(Ks*alpha + Kd*omega + J*ufddotA-lambda*J*(omega-ufdotA))-(n/layereps)*surfA;
+    iB=1/Kt*(-Ks*alpha_eq +J*ufddotB + Kf *signomega +lambda*J*ufdotB)-(n/layereps)*surfB; 
+otherwise,
+    iA=1/Kt*(Ks*alpha + Kd*omega + J*ufddotA-lambda*J*(omega-ufdotA));
+    iB=1/Kt*(-Ks*alpha_eq + J*ufddotB + Kf *signomega+lambda*J*ufdotB)- n* signsurf; 
+end;
+</PRE>
+        </TD>
+      </TR>
+    </TABLE>
+    The portion of the file <CODE>slidingmode.m</CODE> shown
+    above corresponds to equation <A HREF="#eq3">(3)</A>.
+    However, the input current might saturate, if it is beyond a
+    certain threshold or below zero. This saturation phenomenon
+    is modeled by the following code: 
+
+    <TABLE BORDER="0">
+      <TR>
+        <TD>
+<PRE>
+if iA*X+iB&lt;0
+      iA=[0 0 0 0];
+      iB=0;
+elseif iA*X+iB&gt;maxmotoramps
+      iA=[0 0 0 0];
+      iB=5.4545;
+end;
+</PRE>
+        </TD>
+      </TR>
+    </TABLE>
+    The behavior of the fourth state variable is then compute as
+    defined by equation <A HREF="#eq2">(2)</A>, which is coded
+    as:. 
+<PRE>
+Xdot4=1/J*(-Kd*omega - Ks*p(1)*alpha + Kt*iA)*X+...   
+      1/J*(-Kf*signomega + Ks*p(1)*p(2)*alpha_eq + Kt*iB);
+</PRE>
+
+    <P ALIGN="justify">Here we have the two parameters. Parameter
+    <CODE>p(1)</CODE> is a weight on the nominal spring constant
+    <CODE>Ks</CODE>, <CODE>p(2)</CODE> a weight on the spring
+    equilibrium <CODE>alpha_eq</CODE>. We are thus modeling that
+    the actual constants differ from the ones that are assumed by
+    the controller.</P>
+    <A NAME="testing"></A> 
+
+    <H3>Testing for the rise-time requirement</H3>
+
+    <P ALIGN="justify">The <A HREF="#rise">rise time
+    requirement</A> can be converted into a simple reachability
+    question by adding a small system that observes the ETC
+    behavior and enters an <CODE>avoid</CODE>-state, as soon as
+    the requirement is not satisfied. In order to translate the
+    requirement that the time between crossing the 10% threshold
+    and then the 90% threshold has to has to be smaller that
+    100ms, we need three thresholds, and one extra clock variable
+    that measures the rise time.</P>
+
+    <P ALIGN="justify">Figure 10 shows the portion of the
+    CheckMate model that represents this logic for the rise-time
+    requirement.The two thresholds <CODE>geq10</CODE> and
+    <CODE>geq90</CODE> take input from the SCSB that defines the
+    behavior of the ETC. Threshold <CODE>elapse100</CODE> gets
+    input from a SCSB that implements a simple timer. The timer
+    is non-parametric with reset. The implementation of the timer
+    and the corresponding Stateflow diagram is
+    straightforward.</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/testdia.GIF" ALT=
+      "testdia"> <IMG SRC="etc_documentation_files/testfsm.GIF"
+      ALT="testfsm"><BR>
+       <STRONG>Figure 10.</STRONG> The CheckMate representation
+      of the rise-time specification.
+    </CENTER>
+
+    <P ALIGN="justify">The clock dynamics for <CODE>SCSB1</CODE>
+    in Fig. 10 is defined by:</P>
+
+    <TABLE>
+      <TR>
+        <TD>
+<PRE>
+function [xdot,type]=testclock(x,q);
+
+type=&#39;clock&#39;;
+
+if  q==2
+    xdot=1;
+else
+    xdot=0;
+end;
+reset=0;
+</PRE>
+        </TD>
+      </TR>
+    </TABLE>
+
+    <P ALIGN="justify">Hence, time elapses if the discrete input
+    <CODE>q</CODE> is 2, and stops otherwise. The Stateflow block
+    <CODE>testfsm</CODE> has as output 2 if the system has passed
+    the 10% threshold but has not yet passed the 90% threshold.
+    The system satisfies the requirement if it enters the
+    <CODE>reach</CODE> state, and it violates it, if it enters
+    the <CODE>avoid</CODE> state. Note that it would be
+    sufficient to check for one of these properties.</P>
+    <A NAME="simulation"></A> 
+
+    <H2>Simulation</H2>
+
+    <P ALIGN="justify">We simulate this model with parameter 1.7
+    for the weight on the spring constant. The results show (see
+    Fig. 11) that even for a deviation of the spring constant of
+    70% the rise time requirement will be satisfied. But the
+    simulation shows also that the controller is not able to keep
+    the system on the sliding surface.</P>
+
+    <CENTER>
+      <IMG SRC="etc_documentation_files/simulation.GIF" ALT=
+      "simulation"><BR>
+       <STRONG>Figure 11.</STRONG> Simulation of the CheckMate
+      model for the ETC exmaple (see the text for the particular
+      operating conditions).
+    </CENTER>
+
+    <P ALIGN="justify">The results show that it is likely that
+    one of the other requirements like settle time will not be
+    satisfied. As a next step we are going to derive a simpler
+    model that allows us to investigate these requirements in
+    more detail in the demonstation example
+    <CODE>etc2d</CODE>.</P>
+    <A NAME="explore"></A> 
+
+    <H2>Results of the model exploration</H2>
+    Though CheckMate allows parametric verification, a complete
+    verification for this model with 5 state variables is quite
+    time consuming. Therefore, we use the ability to explore the
+    system behavior using simulation with CheckMate. For this
+    parametric system exploration means that we simulate from all
+    vertices of the combined parameter/state space. Since we
+    assume that the system starts in the origin, and both
+    parameter may range over an interval we get four initial
+    points to start from. The first result of the exploration
+    (that is, by typing the <CODE>explore -vertices</CODE>
+    command) is: 
+<PRE>
+Computing specification 1 of 2 in the list 
+block orders: x = [ETC testclock], q = [coulomb mode testfsm], pth = [above below elapse100 geq10 geq90 left right]
+
+Select parameters
+block ETC:   [1.2;1.2] 
+
+Select vertices
+block ETC:   [0;0;0;0] 
+block testclock:   0 
+
+t = 0.01, x = [0 0 0 0 0], q = [1 3 1], pth = [1 0 0 0 0 0 0]
+  ---&gt; ... --&gt; null_event
+
+For initial condition x = [0 0 0 0 0]: The system enters the state &quot;reach&quot;.
+ / specification satisfied
+
+</PRE>
+
+    <P ALIGN="justify">We started this simulation with he
+    parameter <CODE>[1.2,1.2]</CODE> for the SCSB that models the
+    ETC, i.e. both parameter are 20% beyond nominal. The SCSB
+    that implements the timer has no parameter, hence we do not
+    select parameter for this block. The simulation starts at
+    <CODE>t = 0.01</CODE> and we obtain that the system satisfies
+    the requirement, since <CODE>testfsm</CODE> enters location
+    <CODE>reach</CODE>. The simulation ended in a
+    <CODE>null_event</CODE> i.e. we entered a region without any
+    outgoing transition. Once we are such a region we know that
+    the system will remain in this region.</P>
+
+    <P ALIGN="justify">The exploration results for the other
+    vertices show the same result; the ETC ensures the rise time
+    requirement, even if the spring constant and the spring
+    equilibrium deviate from the nominal value with 20%.</P>
+  </BODY>
+</HTML>
+
